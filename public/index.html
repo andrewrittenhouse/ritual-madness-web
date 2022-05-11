@@ -1,5 +1,6 @@
 <html>
   <head>
+    <script src="/magic-shape.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ritual Madness</title>
     <style>
@@ -35,6 +36,12 @@
         color: white;
         background-color: black;
       }
+
+      canvas {
+        height: 200px;
+        width: 200px;
+        margin: 2rem;
+      }
     </style>
     <script>
       const songs = [
@@ -46,39 +53,60 @@
         '06 new machine.mp3',
       ];
 
-      let listItems;
-      let player;
-      let songIndex;
-
-      function selectSong(i) {
-        songIndex = i;
-
-        for (let listItem of listItems) {
-          listItem.classList.remove('selected');
-        }
-
-        listItems[songIndex].classList.add('selected');
-
-        player.src = `/media/${songs[songIndex]}`;
-        player.load();
-        player.play();
-      }
-
       document.addEventListener('DOMContentLoaded', () => {
-        listItems = document.getElementById('songList').children;
+        const listItems = document.getElementById('songList').children;
+        const player = document.getElementsByTagName('audio')[0];
 
-        player = document.getElementsByTagName('audio')[0];
+        let songIndex = 0;
+
+        function selectSong(i) {
+          songIndex = i;
+
+          for (let listItem of listItems) {
+            listItem.classList.remove('selected');
+          }
+
+          listItems[songIndex].classList.add('selected');
+
+          player.src = `/media/${songs[songIndex]}`;
+          player.load();
+          player.play();
+        }
 
         player.addEventListener('ended', () => {
           selectSong((songIndex < songs.length - 1) ? songIndex + 1 : 0);
         });
+
+        player.src = `/media/${songs[songIndex]}`;
+
+        player.load();
+
+        const canvas = document.getElementsByTagName('canvas')[0];
         
-        selectSong(0);
+        const ctx = canvas.getContext('2d');
+
+        let pointCount = 0;
+        let step = 1;
+
+        let magicShapeInterval = setInterval(() => {
+          pointCount += step;
+
+          drawMagicShape(canvas, ctx, { pointCount, radius: 100 });
+
+          if (pointCount === 0 || pointCount === 42) {
+            step = -step;
+          }
+        }, 100);
       });
     </script>
   </head>
   <body>
     <h1>Ritual Madness</h1>
+
+    <div>
+      <canvas width="200" height="200"></canvas>
+    </div>
+
     <figure>
         <audio controls src="">
             Your browser does not support the
