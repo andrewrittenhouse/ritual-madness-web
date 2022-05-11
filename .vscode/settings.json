@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/2e73f918-6ff8-41bb-bbc3-e7e09f824581/resourceGroups/mad-resource-group/providers/Microsoft.Web/sites/mad-web-app",
+    "appService.deploySubpath": "."
+}
