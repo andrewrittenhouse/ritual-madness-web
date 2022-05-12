@@ -3,18 +3,31 @@
     <script src="/magic-shape.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ritual Madness</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
     <style>
       * {
         font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
       }
 
       body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f2f3f4;
+        color: #414a4c;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      .container {
         text-align: center;
       }
 
       .dark-mode {
-        color: white;
-        background-color: black;
+        color: #f2f3f4;
+        background-color: #414a4c;
       }
 
       .selected {
@@ -24,8 +37,8 @@
       #songList {
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        align-items: start;
+        margin-top: 1rem;
       }
 
       #songList div {
@@ -47,6 +60,11 @@
         width: 200px;
         margin: 2rem;
       }
+
+      audio::-webkit-media-controls-panel {
+        background-color: white;
+      }
+
     </style>
     <script>
       const songs = [
@@ -60,6 +78,12 @@
 
       const magicColors = ['yellow', 'magenta', 'green', 'red'];
 
+      const magicShapes = [];
+
+      for (let i = 2; i < 42; i++) {
+        magicShapes.push(calculatePoints({ pointCount: i, radius: 100, xOffset: 100, yOffset: 100 }));
+      }
+
       let darkMode = false;
       let listItems;
       let player;
@@ -69,10 +93,12 @@
         songIndex = i;
 
         for (let listItem of listItems) {
-          listItem.classList.remove('selected');
+          listItem.classList.remove('on');
+          listItem.classList.add('off');
         }
 
-        listItems[songIndex].classList.add('selected');
+        listItems[songIndex].classList.add('on');
+        listItems[songIndex].classList.remove('off');
 
         player.src = `/media/${songs[songIndex]}`;
         player.load();
@@ -107,24 +133,24 @@
 
         let beamProbability = 0;
         let beamProbabilityStep = 0.05;
-        let pointCount = 0;
-        let pointCountStep = 1;
+        let magicShapeIndex = 0;
+        let magicShapeIndexStep = 1;
         let magicColorIndex = 0;
 
         let magicShapeInterval = setInterval(() => {
-          pointCount += pointCountStep;
-
           drawMagicShape(canvas, ctx, { 
+            asymmetry: 0,
             beamColor: magicColors[magicColorIndex],
             beamProbability,
-            pointCount, 
-            radius: 100 
+            points: magicShapes[magicShapeIndex]
           });
 
-          if (pointCount === 0 || pointCount === 40) {
-            pointCountStep = -pointCountStep;
+          const newMagicShapeIndex = magicShapeIndex + magicShapeIndexStep;
 
-            if (pointCountStep > 0) {
+          if (newMagicShapeIndex < 0 || newMagicShapeIndex > magicShapes.length - 1) {
+            magicShapeIndexStep = -magicShapeIndexStep;
+
+            if (magicShapeIndexStep > 0) {
               const nextBeamProbability = Math.round((beamProbability + beamProbabilityStep) * 100) / 100;
 
               if (nextBeamProbability < 0 || nextBeamProbability > 1) {
@@ -142,31 +168,38 @@
               beamProbability = Math.round((beamProbability + beamProbabilityStep) * 100) / 100;
             }
           }
+
+          magicShapeIndex += magicShapeIndexStep;
         }, 100);
+
+        selectSong(0);
       });
     </script>
   </head>
   <body>
-    <h1>Ritual Madness</h1>
-
     <div>
-      <canvas width="200" height="200" onclick="toggleDarkMode()"></canvas>
-    </div>
+      <h1>Ritual Madness</h1>
 
-    <figure>
-        <audio controls src="">
-            Your browser does not support the
-            <code>audio</code> element.
-        </audio>
-    </figure>  
+      <div class="container">
+        <canvas width="200" height="200" onclick="toggleDarkMode()"></canvas>
+      </div>
 
-    <div id="songList">
-      <div onclick="selectSong(0)">Mad Scientist</div>
-      <div onclick="selectSong(1)">Summer Sun</div>
-      <div onclick="selectSong(2)">Black Magic Baby</div>
-      <div onclick="selectSong(3)">Paradise</div>
-      <div onclick="selectSong(4)">Apocalypse Kid</div>
-      <div onclick="selectSong(5)">New Machine</div>
+      <h2>Bad Recordings</h2>
+      <p>Scratch tracks for hammering out song structure.</p>
+
+      <audio controls src="">
+          Your browser does not support the
+          <code>audio</code> element.
+      </audio>
+
+      <div id="songList">
+        <button onmousedown="selectSong(0)">Mad Scientist</button>
+        <button onmousedown="selectSong(1)">Summer Sun</button>
+        <button onmousedown="selectSong(2)">Black Magic Baby</button>
+        <button onmousedown="selectSong(3)">Paradise</button>
+        <button onmousedown="selectSong(4)">Apocalypse Kid</button>
+        <button onmousedown="selectSong(5)">New Machine</button>
+      </div>
     </div>
   </body>
 </html>
