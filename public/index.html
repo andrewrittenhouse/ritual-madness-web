@@ -58,7 +58,7 @@
         '06 new machine.mp3',
       ];
 
-      const magicColors = ['yellow', 'magenta'];
+      const magicColors = ['yellow', 'magenta', 'red'];
 
       let darkMode = false;
       let listItems;
@@ -106,7 +106,7 @@
         const ctx = canvas.getContext('2d');
 
         let beamProbability = 0;
-        let beamProbabilityStep = 1 / 42;
+        let beamProbabilityStep = 0.05;
         let pointCount = 0;
         let pointCountStep = 1;
         let magicColorIndex = 0;
@@ -115,24 +115,31 @@
           pointCount += pointCountStep;
 
           drawMagicShape(canvas, ctx, { 
+            beamColor: magicColors[magicColorIndex],
             beamProbability,
             pointCount, 
             radius: 100 
           });
 
-          if (pointCount === 0 || pointCount === 42) {
+          if (pointCount === 0 || pointCount === 40) {
             pointCountStep = -pointCountStep;
 
-            beamProbability += beamProbabilityStep;
+            if (pointCountStep > 0) {
+              const nextBeamProbability = Math.round((beamProbability + beamProbabilityStep) * 100) / 100;
 
-            if (beamProbability - beamProbabilityStep < 0 || beamProbability + beamProbabilityStep > 1) {
-              beamProbabilityStep = -beamProbabilityStep;
+              if (nextBeamProbability < 0 || nextBeamProbability > 1) {
+                beamProbabilityStep = -beamProbabilityStep;
 
-              if (magicColorIndex === magicColors.length - 1) {
-                magicColorIndex = 0;
-              } else {
-                magicColorIndex++;
+                if (beamProbabilityStep > 0) {
+                  if (magicColorIndex === magicColors.length - 1) {
+                    magicColorIndex = 0;
+                  } else {
+                    magicColorIndex++;
+                  }
+                }
               }
+
+              beamProbability = Math.round((beamProbability + beamProbabilityStep) * 100) / 100;
             }
           }
         }, 100);

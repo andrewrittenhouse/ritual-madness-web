@@ -3,7 +3,7 @@ function calculateAngle(index, pointCount) {
 }
 
 
-function drawMagicShape(canvas, ctx, { pointCount, radius, beamProbability }) {
+function drawMagicShape(canvas, ctx, { pointCount, radius, beamProbability, beamColor }) {
     const points = [];
 
     for (let i = 0; i < pointCount; i++) {
@@ -31,7 +31,7 @@ function drawMagicShape(canvas, ctx, { pointCount, radius, beamProbability }) {
             if (Math.random() < beamProbability) {
                 ctx.stroke();
 
-                ctx.strokeStyle = 'yellow';
+                ctx.strokeStyle = beamColor;
 
                 ctx.beginPath();
 
