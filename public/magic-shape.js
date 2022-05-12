@@ -3,7 +3,7 @@ function calculateAngle(index, pointCount) {
 }
 
 
-function drawMagicShape(canvas, ctx, { pointCount, radius }) {
+function drawMagicShape(canvas, ctx, { pointCount, radius, beamProbability }) {
     const points = [];
 
     for (let i = 0; i < pointCount; i++) {
@@ -19,17 +19,38 @@ function drawMagicShape(canvas, ctx, { pointCount, radius }) {
 
     ctx.lineWidth = 1;
 
+    ctx.strokeStyle = 'black';
+
     ctx.beginPath();
 
     for (let i = 0; i < pointCount; i++) {
         for (let ii = i + 1; ii < pointCount; ii++) {
             const pointA = points[i];
             const pointB = points[ii];
+            
+            if (Math.random() < beamProbability) {
+                ctx.stroke();
+
+                ctx.strokeStyle = 'yellow';
+
+                ctx.beginPath();
+
+                ctx.moveTo(...pointA);
+                ctx.lineTo(...pointB);
+
+                ctx.stroke();
+
+                ctx.strokeStyle = 'black';
+
+                ctx.beginPath();
+
+                continue;
+            }
 
             ctx.moveTo(...pointA);
             ctx.lineTo(...pointB);
-
-            ctx.stroke();
         }
     }
+
+    ctx.stroke();
 }

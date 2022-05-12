@@ -12,6 +12,11 @@
         text-align: center;
       }
 
+      .dark-mode {
+        color: white;
+        background-color: black;
+      }
+
       .selected {
         font-weight: bolder;
       }
@@ -53,25 +58,40 @@
         '06 new machine.mp3',
       ];
 
-      document.addEventListener('DOMContentLoaded', () => {
-        const listItems = document.getElementById('songList').children;
-        const player = document.getElementsByTagName('audio')[0];
+      const magicColors = ['yellow', 'magenta'];
 
-        let songIndex = 0;
+      let darkMode = false;
+      let listItems;
+      let player;
+      let songIndex = 0;
 
-        function selectSong(i) {
-          songIndex = i;
+      function selectSong(i) {
+        songIndex = i;
 
-          for (let listItem of listItems) {
-            listItem.classList.remove('selected');
-          }
-
-          listItems[songIndex].classList.add('selected');
-
-          player.src = `/media/${songs[songIndex]}`;
-          player.load();
-          player.play();
+        for (let listItem of listItems) {
+          listItem.classList.remove('selected');
         }
+
+        listItems[songIndex].classList.add('selected');
+
+        player.src = `/media/${songs[songIndex]}`;
+        player.load();
+        player.play();
+      }
+
+      function toggleDarkMode() {
+        darkMode = !darkMode;
+
+        if (darkMode) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        listItems = document.getElementById('songList').children;
+        player = document.getElementsByTagName('audio')[0];
 
         player.addEventListener('ended', () => {
           selectSong((songIndex < songs.length - 1) ? songIndex + 1 : 0);
@@ -85,16 +105,35 @@
         
         const ctx = canvas.getContext('2d');
 
+        let beamProbability = 0;
+        let beamProbabilityStep = 1 / 42;
         let pointCount = 0;
-        let step = 1;
+        let pointCountStep = 1;
+        let magicColorIndex = 0;
 
         let magicShapeInterval = setInterval(() => {
-          pointCount += step;
+          pointCount += pointCountStep;
 
-          drawMagicShape(canvas, ctx, { pointCount, radius: 100 });
+          drawMagicShape(canvas, ctx, { 
+            beamProbability,
+            pointCount, 
+            radius: 100 
+          });
 
           if (pointCount === 0 || pointCount === 42) {
-            step = -step;
+            pointCountStep = -pointCountStep;
+
+            beamProbability += beamProbabilityStep;
+
+            if (beamProbability - beamProbabilityStep < 0 || beamProbability + beamProbabilityStep > 1) {
+              beamProbabilityStep = -beamProbabilityStep;
+
+              if (magicColorIndex === magicColors.length - 1) {
+                magicColorIndex = 0;
+              } else {
+                magicColorIndex++;
+              }
+            }
           }
         }, 100);
       });
@@ -104,7 +143,7 @@
     <h1>Ritual Madness</h1>
 
     <div>
-      <canvas width="200" height="200"></canvas>
+      <canvas width="200" height="200" onclick="toggleDarkMode()"></canvas>
     </div>
 
     <figure>
