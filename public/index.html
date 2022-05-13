@@ -70,7 +70,7 @@
         '06 new machine.mp3',
       ];
 
-      const magicColors = ['yellow', 'magenta', 'green', 'red'];
+      const magicColors = ['#fefe22', 'magenta', 'green', 'red'];
 
       const magicShapes = [];
 
@@ -95,7 +95,6 @@
 
         player.src = `/media/${songs[songIndex]}`;
         player.load();
-        player.play();
       }
 
       document.addEventListener('DOMContentLoaded', () => {
@@ -104,6 +103,8 @@
 
         player.addEventListener('ended', () => {
           selectSong((songIndex < songs.length - 1) ? songIndex + 1 : 0);
+
+          player.play();
 
           if (songIndex === 0) {
             player.pause();
@@ -160,6 +161,8 @@
         }, 100);
 
         selectSong(0);
+
+        initMagicCanvas(canvas, ctx, { size: 200 });
       });
     </script>
   </head>
@@ -168,7 +171,7 @@
       <h1>Ritual Madness</h1>
 
       <div class="container">
-        <canvas width="200" height="200"></canvas>
+        <canvas></canvas>
       </div>
 
       <h2>Bad Recordings</h2>
