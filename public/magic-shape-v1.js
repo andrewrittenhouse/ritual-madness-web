@@ -76,7 +76,7 @@ function initMagicCanvas(canvas, ctx, { size }) {
 
     // Set actual size in memory (scaled to account for extra pixel density).
     var scale = window.devicePixelRatio; // Change to 1 on retina screens to see blurry canvas.
-    console.log({scale})
+    
     canvas.width = Math.floor(size * scale);
     canvas.height = Math.floor(size * scale);
 

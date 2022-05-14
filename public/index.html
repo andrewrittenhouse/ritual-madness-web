@@ -79,8 +79,24 @@
       }
 
       let listItems;
+      let magicShapeInterval;
+      let magicTapped = false;
       let player;
       let songIndex = 0;
+
+      let beamProbability = 0;
+      let beamProbabilityStep = 0.05;
+      let magicShapeIndex = 0;
+      let magicShapeIndexStep = 1;
+      let magicColorIndex = 0;
+
+      let warpDrive = false;
+
+      function playSong(i) {
+        selectSong(i);;
+
+        player.play();
+      }
 
       function selectSong(i) {
         songIndex = i;
@@ -97,35 +113,12 @@
         player.load();
       }
 
-      document.addEventListener('DOMContentLoaded', () => {
-        listItems = document.getElementById('songList').children;
-        player = document.getElementsByTagName('audio')[0];
+      function animate(canvas, ctx, { speed, warpDrive }) {
+        if (magicShapeInterval) {
+          clearInterval(magicShapeInterval);
+        }
 
-        player.addEventListener('ended', () => {
-          selectSong((songIndex < songs.length - 1) ? songIndex + 1 : 0);
-
-          player.play();
-
-          if (songIndex === 0) {
-            player.pause();
-          }
-        });
-
-        player.src = `/media/${songs[songIndex]}`;
-
-        player.load();
-
-        const canvas = document.getElementsByTagName('canvas')[0];
-        
-        const ctx = canvas.getContext('2d');
-
-        let beamProbability = 0;
-        let beamProbabilityStep = 0.05;
-        let magicShapeIndex = 0;
-        let magicShapeIndexStep = 1;
-        let magicColorIndex = 0;
-
-        let magicShapeInterval = setInterval(() => {
+        magicShapeInterval = setInterval(() => {
           drawMagicShape(canvas, ctx, { 
             asymmetry: 0,
             beamColor: magicColors[magicColorIndex],
@@ -158,11 +151,40 @@
           }
 
           magicShapeIndex += magicShapeIndexStep;
-        }, 100);
+        }, 100 / speed);
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        listItems = document.getElementById('songList').children;
+        player = document.getElementsByTagName('audio')[0];
+
+        player.addEventListener('ended', () => {
+          playSong((songIndex < songs.length - 1) ? songIndex + 1 : 0);
+
+          if (songIndex === 0) {
+            player.pause();
+          }
+        });
+
+        player.src = `/media/${songs[songIndex]}`;
+
+        player.load();
+
+        const canvas = document.getElementsByTagName('canvas')[0];
+
+        canvas.addEventListener('click', () => {
+          warpDrive = !warpDrive;
+
+          animate(canvas, ctx, { speed: warpDrive ? 3 : 1, warpDrive });
+        });
+        
+        const ctx = canvas.getContext('2d');
 
         selectSong(0);
 
         initMagicCanvas(canvas, ctx, { size: 200 });
+
+        animate(canvas, ctx, { speed: 1 });
       });
     </script>
   </head>
@@ -183,12 +205,12 @@
       </audio>
 
       <div id="songList">
-        <button onmousedown="selectSong(0)">Mad Scientist</button>
-        <button onmousedown="selectSong(1)">Summer Sun</button>
-        <button onmousedown="selectSong(2)">Black Magic Baby</button>
-        <button onmousedown="selectSong(3)">Paradise</button>
-        <button onmousedown="selectSong(4)">Apocalypse Kid</button>
-        <button onmousedown="selectSong(5)">New Machine</button>
+        <button onmousedown="playSong(0)">Mad Scientist</button>
+        <button onmousedown="playSong(1)">Summer Sun</button>
+        <button onmousedown="playSong(2)">Black Magic Baby</button>
+        <button onmousedown="playSong(3)">Paradise</button>
+        <button onmousedown="playSong(4)">Apocalypse Kid</button>
+        <button onmousedown="playSong(5)">New Machine</button>
       </div>
     </div>
   </body>
