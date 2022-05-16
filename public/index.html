@@ -1,6 +1,6 @@
 <html>
   <head>
-    <script src="/magic-shape-v1.js"></script>
+    <script src="/art-worker.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ritual Madness</title>
     <link rel="stylesheet" href="/stylesheets/style-v1.css">
@@ -51,8 +51,8 @@
       }
 
       canvas {
-        height: 200px;
-        width: 200px;
+        height: 16px;
+        width: 16px;
         margin: 2rem;
       }
 
@@ -70,27 +70,9 @@
         '06 new machine.mp3',
       ];
 
-      const magicColors = ['#fefe22', 'magenta', 'green', 'red'];
-
-      const magicShapes = [];
-
-      for (let i = 2; i < 42; i++) {
-        magicShapes.push(calculatePoints({ pointCount: i, radius: 100, xOffset: 100, yOffset: 100 }));
-      }
-
       let listItems;
-      let magicShapeInterval;
-      let magicTapped = false;
       let player;
       let songIndex = 0;
-
-      let beamProbability = 0;
-      let beamProbabilityStep = 0.05;
-      let magicShapeIndex = 0;
-      let magicShapeIndexStep = 1;
-      let magicColorIndex = 0;
-
-      let warpDrive = false;
 
       function playSong(i) {
         selectSong(i);;
@@ -113,50 +95,9 @@
         player.load();
       }
 
-      function animate(canvas, ctx, { speed, warpDrive }) {
-        if (magicShapeInterval) {
-          clearInterval(magicShapeInterval);
-        }
-
-        magicShapeInterval = setInterval(() => {
-          drawMagicShape(canvas, ctx, { 
-            asymmetry: 0,
-            beamColor: magicColors[magicColorIndex],
-            beamProbability,
-            points: magicShapes[magicShapeIndex]
-          });
-
-          const newMagicShapeIndex = magicShapeIndex + magicShapeIndexStep;
-
-          if (newMagicShapeIndex < 0 || newMagicShapeIndex > magicShapes.length - 1) {
-            magicShapeIndexStep = -magicShapeIndexStep;
-
-            if (magicShapeIndexStep > 0) {
-              const nextBeamProbability = Math.round((beamProbability + beamProbabilityStep) * 100) / 100;
-
-              if (nextBeamProbability < 0 || nextBeamProbability > 1) {
-                beamProbabilityStep = -beamProbabilityStep;
-
-                if (beamProbabilityStep > 0) {
-                  if (magicColorIndex === magicColors.length - 1) {
-                    magicColorIndex = 0;
-                  } else {
-                    magicColorIndex++;
-                  }
-                }
-              }
-
-              beamProbability = Math.round((beamProbability + beamProbabilityStep) * 100) / 100;
-            }
-          }
-
-          magicShapeIndex += magicShapeIndexStep;
-        }, 100 / speed);
-      }
-
       document.addEventListener('DOMContentLoaded', () => {
         listItems = document.getElementById('songList').children;
-        player = document.getElementsByTagName('audio')[0];
+        player = document.querySelector('audio');
 
         player.addEventListener('ended', () => {
           playSong((songIndex < songs.length - 1) ? songIndex + 1 : 0);
@@ -166,25 +107,42 @@
           }
         });
 
-        player.src = `/media/${songs[songIndex]}`;
-
-        player.load();
-
-        const canvas = document.getElementsByTagName('canvas')[0];
-
-        canvas.addEventListener('click', () => {
-          warpDrive = !warpDrive;
-
-          animate(canvas, ctx, { speed: warpDrive ? 3 : 1, warpDrive });
-        });
-        
-        const ctx = canvas.getContext('2d');
-
         selectSong(0);
 
-        initMagicCanvas(canvas, ctx, { size: 200 });
+        const canvas = document.querySelector('canvas');
 
-        animate(canvas, ctx, { speed: 1 });
+        const scale = scaleMagicCanvas(canvas, { size: 200 });
+
+        const offscreenCanvas = canvas.transferControlToOffscreen();
+
+        const artWorker = new Worker('art-worker.js');
+
+        artWorker.postMessage({ 
+          message: 'init', 
+          params: {
+            canvas: offscreenCanvas,
+            magicColors: ['#fefe22', '#ff00ff', '#00ff00', '#ff0000'],
+            scale
+          }
+        }, [offscreenCanvas]);
+
+        artWorker.postMessage({ message: 'animate' });
+
+        const runFrame = () => {
+          artWorker.postMessage({ message: 'frame' });
+
+          window.requestAnimationFrame(() => {
+            runFrame();
+          });
+        };
+
+        window.requestAnimationFrame(() => {
+          runFrame();
+        });
+
+        canvas.addEventListener('click', () => {
+          artWorker.postMessage({ message: 'freeze' });
+        });
       });
     </script>
   </head>
