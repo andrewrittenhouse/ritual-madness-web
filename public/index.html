@@ -1,10 +1,13 @@
 <html>
   <head>
-    <script src="/art-worker.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ritual Madness</title>
-    <link rel="stylesheet" href="/stylesheets/style-v1.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="stylesheets/cool-input.css">
     <style>
+      :root {
+        --container-width: 576px;
+      }
+
       * {
         font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
       }
@@ -15,18 +18,22 @@
         align-items: center;
         color: #f2f3f4;
         background-color: #414a4c;
+        padding: 50px;
+        font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
       }
 
       h1 {
         text-align: center;
       }
 
-      .container {
-        text-align: center;
-      }
+      .canvas-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-      .selected {
-        font-weight: bolder;
+        text-align: center;
+
+        z-index: -1;
       }
 
       #songList {
@@ -59,7 +66,36 @@
       audio::-webkit-media-controls-panel {
         background-color: white;
       }
+
+      @media (min-width: var(--container-width)) {
+        
+      }
     </style>
+  </head>
+  <body>
+    <h1>Ritual Madness</h1>
+
+    <div class="canvas-container">
+      <canvas></canvas>
+    </div>
+
+    <h2>Bad Recordings</h2>
+    <p>Scratch tracks for hammering out song structure.</p>
+
+    <audio controls src="">
+      Your browser does not support the
+      <code>audio</code> element.
+    </audio>
+
+    <div id="songList">
+      <button onmousedown="playSong(0)">Mad Scientist</button>
+      <button onmousedown="playSong(1)">Summer Sun</button>
+      <button onmousedown="playSong(2)">Black Magic Baby</button>
+      <button onmousedown="playSong(3)">Paradise</button>
+      <button onmousedown="playSong(4)">Apocalypse Kid</button>
+      <button onmousedown="playSong(5)">New Machine</button>
+    </div>
+    
     <script>
       const songs = [
         '01 mad scientist.mp3',
@@ -70,12 +106,14 @@
         '06 new machine.mp3',
       ];
 
-      let listItems;
-      let player;
+      const canvas = document.querySelector('canvas');
+      const listItems = document.getElementById('songList').children;
+      const player = document.querySelector('audio');
+
       let songIndex = 0;
 
       function playSong(i) {
-        selectSong(i);;
+        selectSong(i);
 
         player.play();
       }
@@ -92,84 +130,44 @@
         listItems[songIndex].classList.remove('off');
 
         player.src = `/media/${songs[songIndex]}`;
+
         player.load();
       }
 
-      document.addEventListener('DOMContentLoaded', () => {
-        listItems = document.getElementById('songList').children;
-        player = document.querySelector('audio');
+      player.addEventListener('ended', () => {
+        if (songIndex === songs.length - 1) {
+          player.pause();
 
-        player.addEventListener('ended', () => {
-          playSong((songIndex < songs.length - 1) ? songIndex + 1 : 0);
+          selectSong(0);
 
-          if (songIndex === 0) {
-            player.pause();
-          }
-        });
-
-        selectSong(0);
-
-        const canvas = document.querySelector('canvas');
-
-        const scale = scaleMagicCanvas(canvas, { size: 200 });
-
-        const offscreenCanvas = canvas.transferControlToOffscreen();
-
-        const artWorker = new Worker('art-worker.js');
-
-        artWorker.postMessage({ 
-          message: 'init', 
-          params: {
-            canvas: offscreenCanvas,
-            magicColors: ['#fefe22', '#ff00ff', '#00ff00', '#ff0000'],
-            scale
-          }
-        }, [offscreenCanvas]);
-
-        artWorker.postMessage({ message: 'animate' });
-
-        const runFrame = () => {
-          artWorker.postMessage({ message: 'frame' });
-
-          window.requestAnimationFrame(() => {
-            runFrame();
-          });
-        };
-
-        window.requestAnimationFrame(() => {
-          runFrame();
-        });
-
-        canvas.addEventListener('click', () => {
-          artWorker.postMessage({ message: 'freeze' });
-        });
+          return;
+        }
+        
+        playSong((songIndex < songs.length - 1) ? songIndex + 1 : 0);
       });
+
+      selectSong(0);
+
+      const canvasSize = 200;
+
+      canvas.style.width = canvasSize + "px";
+      canvas.style.height = canvasSize + "px";
+
+      canvas.width = canvasSize * window.devicePixelRatio;
+      canvas.height = canvasSize * window.devicePixelRatio;
+
+      const worker = new Worker('animation-worker.js');
+
+      const offscreenCanvas = canvas.transferControlToOffscreen();
+
+      worker.postMessage({ 
+        message: 'animate', 
+        params: { 
+          canvas: offscreenCanvas,
+          devicePixelRatio: window.devicePixelRatio, 
+          radius: canvasSize / 2
+        }
+      }, [offscreenCanvas]);
     </script>
-  </head>
-  <body>
-    <div>
-      <h1>Ritual Madness</h1>
-
-      <div class="container">
-        <canvas></canvas>
-      </div>
-
-      <h2>Bad Recordings</h2>
-      <p>Scratch tracks for hammering out song structure.</p>
-
-      <audio controls src="">
-          Your browser does not support the
-          <code>audio</code> element.
-      </audio>
-
-      <div id="songList">
-        <button onmousedown="playSong(0)">Mad Scientist</button>
-        <button onmousedown="playSong(1)">Summer Sun</button>
-        <button onmousedown="playSong(2)">Black Magic Baby</button>
-        <button onmousedown="playSong(3)">Paradise</button>
-        <button onmousedown="playSong(4)">Apocalypse Kid</button>
-        <button onmousedown="playSong(5)">New Machine</button>
-      </div>
-    </div>
   </body>
 </html>
