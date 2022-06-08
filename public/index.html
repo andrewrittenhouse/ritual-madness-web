@@ -2,7 +2,7 @@
   <head>
     <title>Ritual Madness</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="stylesheets/cool-input.css">
+    <link rel="stylesheet" href="stylesheets0/cool-input.css">
     <style>
       :root {
         --container-width: 576px;
@@ -34,6 +34,12 @@
         text-align: center;
 
         z-index: -1;
+      }
+
+      #audio {
+        background-color: blue;
+        height: 200px;
+        width: 200px;
       }
 
       #songList {
@@ -82,11 +88,6 @@
     <h2>Bad Recordings</h2>
     <p>Scratch tracks for hammering out song structure.</p>
 
-    <audio controls src="">
-      Your browser does not support the
-      <code>audio</code> element.
-    </audio>
-
     <div id="songList">
       <button onmousedown="playSong(0)">Mad Scientist</button>
       <button onmousedown="playSong(1)">Summer Sun</button>
@@ -98,18 +99,18 @@
     
     <script>
       const songs = [
-        '01 - mad scientist.mp3',
-        '02 - summer sun.mp3',
-        '03 - black magic baby.mp3',
-        '04 - paradise.mp3',
-        '05 - apocalypse kid.mp3',
-        '06 - new machine.mp3',
+        new Audio('/media0/01 - mad scientist.mp3'),
+        new Audio('/media0/02 - summer sun.mp3'),
+        new Audio('/media0/03 - black magic baby.mp3'),
+        new Audio('/media0/04 - paradise.mp3'),
+        new Audio('/media0/05 - apocalypse kid.mp3'),
+        new Audio('/media0/06 - new machine.mp3')
       ];
 
       const canvas = document.querySelector('canvas');
       const listItems = document.getElementById('songList').children;
-      const player = document.querySelector('audio');
 
+      let player;
       let songIndex = 0;
 
       function playSong(i) {
@@ -129,22 +130,26 @@
         listItems[songIndex].classList.add('on');
         listItems[songIndex].classList.remove('off');
 
-        player.src = `/media/${songs[songIndex]}`;
+        if (player) {
+          player.pause();
+        }
+
+        player = songs[songIndex];
 
         player.load();
       }
 
-      player.addEventListener('ended', () => {
-        if (songIndex === songs.length - 1) {
-          player.pause();
+      songs.forEach((song, i) => {
+        song.addEventListener('ended', () => {
+          if (i === songs.length - 1) {
+            selectSong(0);
 
-          selectSong(0);
-
-          return;
-        }
-        
-        playSong((songIndex < songs.length - 1) ? songIndex + 1 : 0);
-      });
+            return;
+          }
+          
+          playSong(i + 1);
+        });
+      })
 
       selectSong(0);
 
@@ -156,7 +161,7 @@
       canvas.width = canvasSize * window.devicePixelRatio;
       canvas.height = canvasSize * window.devicePixelRatio;
 
-      const worker = new Worker('animation-worker.js');
+      const worker = new Worker('scripts0/animation-worker.js');
 
       const offscreenCanvas = canvas.transferControlToOffscreen();
 
