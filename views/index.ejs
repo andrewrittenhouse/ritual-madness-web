@@ -1,11 +1,187 @@
-<!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <title>Ritual Madness</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="<%= publicPath %>/stylesheets/cool-input.css">
+    <style>
+      :root {
+        --container-width: 576px;
+      }
+
+      * {
+        font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #f2f3f4;
+        background-color: #414a4c;
+        padding: 50px;
+        font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+      }
+
+      header {
+        height: 4rem;
+      }
+
+      header h1 {
+        position: fixed;
+        left: 0;
+        right: 0;
+        text-align: center;
+      }
+
+      .canvas-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        text-align: center;
+
+        z-index: -1;
+      }
+
+      #audio {
+        background-color: blue;
+        height: 200px;
+        width: 200px;
+      }
+
+      #songList {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        margin-top: 1rem;
+      }
+
+      #songList div {
+        border: 1px solid black;
+        border-radius: 1rem;
+        margin-top: 1rem;
+        padding: 1rem;
+        width: 16rem;
+      }
+
+      #songList div:hover {
+        cursor: pointer;
+        color: white;
+        background-color: black;
+      }
+
+      canvas {
+        height: 16px;
+        width: 16px;
+        margin: 2rem;
+      }
+
+      audio::-webkit-media-controls-panel {
+        background-color: white;
+      }
+
+      @media (min-width: var(--container-width)) {
+        
+      }
+    </style>
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <header>
+      <h1>Ritual Madness</h1>
+    </header>
+
+    <div class="canvas-container">
+      <canvas></canvas>
+    </div>
+
+    <h2>Bad Recordings</h2>
+    <p>Scratch tracks for hammering out song structure.</p>
+
+    <div id="songList">
+      <button onmousedown="playSong(0)">Mad Scientist</button>
+      <button onmousedown="playSong(1)">Summer Sun</button>
+      <button onmousedown="playSong(2)">Black Magic Baby</button>
+      <button onmousedown="playSong(3)">Paradise</button>
+      <button onmousedown="playSong(4)">Apocalypse Kid</button>
+      <button onmousedown="playSong(5)">New Machine</button>
+    </div>
+    
+    <script>
+      const songs = [
+        new Audio('<%= publicPath %>/media/01 - mad scientist.mp3'),
+        new Audio('<%= publicPath %>/media/02 - summer sun.mp3'),
+        new Audio('<%= publicPath %>/media/03 - black magic baby.mp3'),
+        new Audio('<%= publicPath %>/media/04 - paradise.mp3'),
+        new Audio('<%= publicPath %>/media/05 - apocalypse kid.mp3'),
+        new Audio('<%= publicPath %>/media/06 - new machine.mp3')
+      ];
+
+      const canvas = document.querySelector('canvas');
+      const listItems = document.getElementById('songList').children;
+
+      let player;
+      let songIndex = 0;
+
+      function playSong(i) {
+        selectSong(i);
+
+        player.play();
+      }
+
+      function selectSong(i) {
+        songIndex = i;
+
+        for (let listItem of listItems) {
+          listItem.classList.remove('on');
+          listItem.classList.add('off');
+        }
+
+        listItems[songIndex].classList.add('on');
+        listItems[songIndex].classList.remove('off');
+
+        if (player) {
+          player.pause();
+        }
+
+        player = songs[songIndex];
+
+        player.load();
+      }
+
+      songs.forEach((song, i) => {
+        song.addEventListener('ended', () => {
+          if (i === songs.length - 1) {
+            selectSong(0);
+
+            return;
+          }
+          
+          playSong(i + 1);
+        });
+      })
+
+      selectSong(0);
+
+      const canvasSize = 300;
+
+      canvas.style.width = canvasSize + "px";
+      canvas.style.height = canvasSize + "px";
+
+      canvas.width = canvasSize * window.devicePixelRatio;
+      canvas.height = canvasSize * window.devicePixelRatio;
+
+      const worker = new Worker('<%= publicPath %>/scripts/animation-worker.js');
+
+      const offscreenCanvas = canvas.transferControlToOffscreen();
+
+      worker.postMessage({ 
+        message: 'animate', 
+        params: { 
+          canvas: offscreenCanvas,
+          devicePixelRatio: window.devicePixelRatio, 
+          radius: canvasSize / 2
+        }
+      }, [offscreenCanvas]);
+    </script>
   </body>
 </html>
