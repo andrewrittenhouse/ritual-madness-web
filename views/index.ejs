@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="<%= publicPath %>/stylesheets/cool-input.css">
     <style>
       :root {
-        --container-width: 576px;
+        --container-width: 200px;
       }
 
       * {
@@ -18,18 +18,20 @@
         align-items: center;
         color: #f2f3f4;
         background-color: #414a4c;
-        padding: 50px;
         font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+        margin: 0;
+      }
+
+      body > * {
+        width: var(--container-width);
       }
 
       header {
         height: 4rem;
+        width: 100%;
       }
 
       header h1 {
-        position: fixed;
-        left: 0;
-        right: 0;
         text-align: center;
       }
 
@@ -43,12 +45,6 @@
         z-index: -1;
       }
 
-      #audio {
-        background-color: blue;
-        height: 200px;
-        width: 200px;
-      }
-
       #songList {
         display: flex;
         flex-direction: column;
@@ -60,7 +56,6 @@
         border: 1px solid black;
         border-radius: 1rem;
         margin-top: 1rem;
-        padding: 1rem;
         width: 16rem;
       }
 
@@ -71,9 +66,14 @@
       }
 
       canvas {
-        height: 16px;
-        width: 16px;
-        margin: 2rem;
+        height: var(--container-width);
+        width: var(--container-width);
+        margin: 2rem 0;
+      }
+
+      .audio {
+        text-align: center;
+        width: 100%;
       }
 
       audio::-webkit-media-controls-panel {
@@ -96,6 +96,11 @@
 
     <h2>Bad Recordings</h2>
     <p>Scratch tracks for hammering out song structure.</p>
+    <div class="audio">
+      <audio controls>
+        <source />
+      </audio>
+    </div>
 
     <div id="songList">
       <button onmousedown="playSong(0)">Mad Scientist</button>
@@ -108,18 +113,18 @@
     
     <script>
       const songs = [
-        new Audio('<%= publicPath %>/media/01 - mad scientist.mp3'),
-        new Audio('<%= publicPath %>/media/02 - summer sun.mp3'),
-        new Audio('<%= publicPath %>/media/03 - black magic baby.mp3'),
-        new Audio('<%= publicPath %>/media/04 - paradise.mp3'),
-        new Audio('<%= publicPath %>/media/05 - apocalypse kid.mp3'),
-        new Audio('<%= publicPath %>/media/06 - new machine.mp3')
+        '<%= publicPath %>/media/01 - mad scientist.mp3',
+        '<%= publicPath %>/media/02 - summer sun.mp3',
+        '<%= publicPath %>/media/03 - black magic baby.mp3',
+        '<%= publicPath %>/media/04 - paradise.mp3',
+        '<%= publicPath %>/media/05 - apocalypse kid.mp3',
+        '<%= publicPath %>/media/06 - new machine.mp3'
       ];
 
       const canvas = document.querySelector('canvas');
-      const listItems = document.getElementById('songList').children;
+      const songButtons = document.getElementById('songList').children;
+      const player = document.querySelector('audio');
 
-      let player;
       let songIndex = 0;
 
       function playSong(i) {
@@ -128,44 +133,41 @@
         player.play();
       }
 
-      function selectSong(i) {
-        songIndex = i;
-
-        for (let listItem of listItems) {
-          listItem.classList.remove('on');
-          listItem.classList.add('off');
+      function selectSong(index) {
+        for (let songButton of songButtons) {
+          songButton.classList.remove('on');
+          songButton.classList.add('off');
         }
 
-        listItems[songIndex].classList.add('on');
-        listItems[songIndex].classList.remove('off');
+        songButtons[index].classList.add('on');
+        songButtons[index].classList.remove('off');
 
         if (player) {
           player.pause();
         }
 
-        player = songs[songIndex];
+        player.src = songs[index];
+
+        songIndex = index;
 
         player.load();
       }
 
-      songs.forEach((song, i) => {
-        song.addEventListener('ended', () => {
-          if (i === songs.length - 1) {
-            selectSong(0);
+      player.addEventListener('ended', () => {
+        const next = (songIndex + 1) % songs.length;
 
-            return;
-          }
-          
-          playSong(i + 1);
-        });
-      })
+        if (next === 0) {
+          selectSong(0);
+
+          return;
+        }
+        
+        playSong(next);
+      });
 
       selectSong(0);
 
-      const canvasSize = 300;
-
-      canvas.style.width = canvasSize + "px";
-      canvas.style.height = canvasSize + "px";
+      const canvasSize = 200;
 
       canvas.width = canvasSize * window.devicePixelRatio;
       canvas.height = canvasSize * window.devicePixelRatio;

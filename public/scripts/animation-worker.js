@@ -2,6 +2,50 @@ const BASE_COLOR = 'black';
 const NOISE_COLORS = ['#fefe22', '#ff00ff', '#00ff00', '#ff0000'];
 const NOISE_LEVELS = [0, 0.05, 0.25, 0.5, 0.9, 1];
 
+function createAnimator(canvas, { devicePixelRatio, radius }) {
+  const ctx = canvas.getContext('2d');
+
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const shapes = Array.from(Array(42).keys()).filter(pointCount => pointCount >= 2).map(pointCount => createMagicShape({ pointCount, radius }));
+
+  return {
+    start() {
+      const startTime = Date.now();
+
+      let prev;
+
+      const next = () => {
+        requestAnimationFrame(() => {
+          try {
+            const x = Math.floor((Date.now() - startTime) / 100);
+
+            if (x === prev) {
+              return;
+            }
+
+            prev = x;
+
+            const a = shapes.length - 1;
+
+            const shape = shuffle(shapes[a - Math.abs(x % (a * 2) - a)]);
+            const noiseLevel = NOISE_LEVELS[(NOISE_LEVELS.length - 1) - Math.abs((Math.floor(x / (a * 2)) % ((NOISE_LEVELS.length - 1) * 2)) - (NOISE_LEVELS.length - 1))];
+            const noiseColorIndex = Math.floor(x / (a * 2 * ((NOISE_LEVELS.length - 1) * 2))) % NOISE_COLORS.length;
+        
+            drawMagicShape(ctx, canvas.height, canvas.width, { noiseColorIndex, noiseLevel, shape });
+          } catch (error) {
+            console.err(error);
+          } finally {
+            next();
+          }
+        });
+      };
+
+      next();
+    }
+  }
+}
+
 function createMagicShape({ pointCount, radius }) {
   return Array.from(Array(pointCount).keys())
     .map((pointIndex) => {
@@ -19,48 +63,6 @@ function createMagicShape({ pointCount, radius }) {
 
       return lines;
     }, []);
-}
-
-function createAnimator(canvas, { devicePixelRatio, radius }) {
-  const ctx = canvas.getContext('2d');
-
-  ctx.scale(devicePixelRatio, devicePixelRatio);
-
-  const shapes = Array.from(Array(42).keys()).filter(pointCount => pointCount >= 2).map(pointCount => createMagicShape({ pointCount, radius }));
-
-  return {
-    start() {
-      let i = 0;
-    
-      setInterval(() => {
-        i++;
-      }, 100);
-
-      let prev;
-
-      const next = () => {
-        requestAnimationFrame(() => {
-          if (i === prev) {
-            next();
-            return;
-          }
-
-          prev = i;
-            
-          const a = shapes.length - 1;
-          const shape = shuffle(shapes[a - Math.abs(i % (a * 2) - a)]);
-          const noiseLevel = NOISE_LEVELS[(NOISE_LEVELS.length - 1) - Math.abs((Math.floor(i / (a * 2)) % ((NOISE_LEVELS.length - 1) * 2)) - (NOISE_LEVELS.length - 1))];
-          const noiseColorIndex = Math.floor(i / (a * 2 * ((NOISE_LEVELS.length - 1) * 2))) % NOISE_COLORS.length;
-      
-          drawMagicShape(ctx, canvas.height, canvas.width, { noiseColorIndex, noiseLevel, shape });
-
-          next();
-        });
-      };
-
-      next();
-    }
-  }
 }
 
 function drawMagicShape(ctx, height, width, { noiseColorIndex, noiseLevel, shape }) {
