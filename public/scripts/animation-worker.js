@@ -5,8 +5,6 @@ const NOISE_LEVELS = [0, 0.05, 0.25, 0.5, 0.9, 1];
 function createAnimator(canvas, { devicePixelRatio, radius }) {
   const ctx = canvas.getContext('2d');
 
-  ctx.scale(devicePixelRatio, devicePixelRatio);
-
   const shapes = Array.from(Array(42).keys()).filter(pointCount => pointCount >= 2).map(pointCount => createMagicShape({ pointCount, radius }));
 
   return {
@@ -51,8 +49,8 @@ function createMagicShape({ pointCount, radius }) {
     .map((pointIndex) => {
       const angle = Math.PI + ((2 * pointIndex * Math.PI) / pointCount);
 
-      const x = (Math.sin(angle) * radius) + radius;
-      const y = (Math.cos(angle) * radius) + radius;
+      const x = Math.floor(Math.sin(angle) * radius) + radius;
+      const y = Math.floor(Math.cos(angle) * radius) + radius;
 
       return [x, y];
     })

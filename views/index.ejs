@@ -167,10 +167,10 @@
 
       selectSong(0);
 
-      const canvasSize = 200;
+      const canvasSize = 200 * window.devicePixelRatio;
 
-      canvas.width = canvasSize * window.devicePixelRatio;
-      canvas.height = canvasSize * window.devicePixelRatio;
+      canvas.width = canvasSize;
+      canvas.height = canvasSize;
 
       const worker = new Worker('<%= publicPath %>/scripts/animation-worker.js');
 
