@@ -3,7 +3,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-const publicPath = `/${process.env.ritualMadnessWebPublicPath ?? 'public-3'}`;
+const publicPath = `/${process.env.ritualMadnessWebPublicPath ?? 'public-4'}`;
 
 var app = express();
 
