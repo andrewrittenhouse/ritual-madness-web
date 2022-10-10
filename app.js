@@ -1,11 +1,31 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
 const publicPath = `/${process.env.ritualMadnessWebPublicPath ?? 'public-4'}`;
 
-var app = express();
+const getFilename = (title) => title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+const songs = [
+  ["Unplugged Cyborg Demo", [
+    "Wait and See",
+    "Count on You",
+    "We Were Then",
+    "Feels So Good to Me",
+    "Satellite"
+  ]],
+  ["Bad Recordings", [
+    "Mad Scientist",
+    "Summer Sun",
+    "Black Magic Baby",
+    "Paradise",
+    "Apocalypse Kid",
+    "New Machine"
+  ]]
+].reduce((songs, [albumName, songNames]) => songs.concat(songNames.map(songName => ({ albumName, songName, url: `${publicPath}/songs/${getFilename(albumName)}/${getFilename(songName)}.mp3` }))), [])
+
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -18,7 +38,10 @@ app.use(cookieParser());
 
 /* BEGIN ROUTING */
 app.use(publicPath, express.static(path.join(__dirname, 'public')));
-app.use('/', (req, res) => res.render('index', { publicPath }));
+app.use('/', (req, res) => res.render('index', { 
+  songs: JSON.stringify(songs), 
+  publicPath 
+}));
 /* END ROUTING */
 
 // catch 404

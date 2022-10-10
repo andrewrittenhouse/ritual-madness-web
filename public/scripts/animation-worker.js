@@ -2,44 +2,55 @@ const BASE_COLOR = 'black';
 const NOISE_COLORS = ['#fefe22', '#ff00ff', '#00ff00', '#ff0000'];
 const NOISE_LEVELS = [0, 0.05, 0.25, 0.5, 0.9, 1];
 
-function createAnimator(canvas, { devicePixelRatio, radius }) {
-  const ctx = canvas.getContext('2d');
+let _animator = undefined
 
-  const shapes = Array.from(Array(42).keys()).filter(pointCount => pointCount >= 2).map(pointCount => createMagicShape({ pointCount, radius }));
-
+function createAnimator(canvas, { radius }) {
   return {
-    start() {
-      const startTime = Date.now();
+    canvas,
+    ctx: canvas.getContext('2d'),
+    isStandby: false,
+    shapes: Array.from(Array(42).keys()).filter(pointCount => pointCount >= 2).map(pointCount => createMagicShape({ pointCount, radius })),
+    startTime: undefined,
+    tick: undefined,
+    next() {
+      requestAnimationFrame(() => {
+        if (this.isStandby) {
+          return;
+        }
 
-      let prev;
+        try {
+          const tick = Math.floor((Date.now() - this.startTime) / 100);
 
-      const next = () => {
-        requestAnimationFrame(() => {
-          try {
-            const x = Math.floor((Date.now() - startTime) / 100);
-
-            if (x === prev) {
-              return;
-            }
-
-            prev = x;
-
-            const a = shapes.length - 1;
-
-            const shape = shuffle(shapes[a - Math.abs(x % (a * 2) - a)]);
-            const noiseLevel = NOISE_LEVELS[(NOISE_LEVELS.length - 1) - Math.abs((Math.floor(x / (a * 2)) % ((NOISE_LEVELS.length - 1) * 2)) - (NOISE_LEVELS.length - 1))];
-            const noiseColorIndex = Math.floor(x / (a * 2 * ((NOISE_LEVELS.length - 1) * 2))) % NOISE_COLORS.length;
-        
-            drawMagicShape(ctx, canvas.height, canvas.width, { noiseColorIndex, noiseLevel, shape });
-          } catch (error) {
-            console.err(error);
-          } finally {
-            next();
+          if (tick === this.tick) {
+            return;
           }
-        });
-      };
 
-      next();
+          this.tick = tick;
+
+          const a = this.shapes.length - 1;
+
+          drawMagicShape(this.ctx, this.canvas.height, this.canvas.width, { 
+            noiseColorIndex: Math.floor(tick / (a * 2 * ((NOISE_LEVELS.length - 1) * 2))) % NOISE_COLORS.length, 
+            noiseLevel: NOISE_LEVELS[(NOISE_LEVELS.length - 1) - Math.abs((Math.floor(tick / (a * 2)) % ((NOISE_LEVELS.length - 1) * 2)) - (NOISE_LEVELS.length - 1))], 
+            shape: shuffle(this.shapes[a - Math.abs(tick % (a * 2) - a)]) 
+          });
+        } catch (error) {
+          console.err(error);
+        } finally {
+          this.next();
+        }
+      });
+    },
+    resume() {
+      this.isStandby = false;
+      this.next();
+    },
+    standby() {
+      this.isStandby = true;
+    },
+    start() {
+      this.startTime = Date.now();
+      this.next();
     }
   }
 }
@@ -101,12 +112,19 @@ function shuffle(arr) {
   return arr;
 }
 
-onmessage = ({ data: { message, params: { canvas, devicePixelRatio, radius } } }) => {
+onmessage = ({ data: { message, params: { canvas, radius } } }) => {
   switch (message) {
-    case 'animate':
-      createAnimator(canvas, { devicePixelRatio, radius }).start();
+    case 'start':
+      _animator = createAnimator(canvas, { radius });
+      _animator.start();
+      break;
+    case 'resume':
+      _animator.resume();
+      break;
+    case 'standby':
+      _animator.standby();
       break;
     default:
-      console.err(`Invalid Message: ${message}`);
+      throw new Error(`Invalid Message: ${message}`)
   }
 };

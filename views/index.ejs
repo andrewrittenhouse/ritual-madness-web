@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="<%= publicPath %>/stylesheets/cool-input.css">
     <style>
       :root {
-        --container-width: 200px;
+        --container-width: 25px;
       }
 
       * {
@@ -23,16 +23,16 @@
       }
 
       body > * {
-        width: var(--container-width);
+        width: 100%
       }
 
       header {
-        height: 4rem;
         width: 100%;
-      }
+        height: 4rem;
 
-      header h1 {
-        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
       }
 
       h2 {
@@ -47,6 +47,8 @@
         text-align: center;
 
         z-index: -1;
+
+        width: 100%;
       }
 
       .songList {
@@ -76,7 +78,6 @@
       }
 
       .audio {
-        text-align: center;
         width: 100%;
       }
 
@@ -84,133 +85,164 @@
         background-color: white;
       }
 
-      @media (min-width: var(--container-width)) {
-        
+      .content {
+        max-width: 400px;
       }
     </style>
   </head>
   <body>
     <header>
-      <h1>Ritual Madness</h1>
+      <div class="audio">
+        <audio controls>
+          <source />
+        </audio>
+      </div>
+      <div class="canvas-container">
+        <canvas></canvas>
+      </div> 
     </header>
 
-    <div class="canvas-container">
-      <canvas></canvas>
-    </div>
-
-    <div class="audio">
-      <audio controls>
-        <source />
-      </audio>
-    </div>
-
-    <h2>Unplugged Cyborg Demo</h2>
-
-    <div class="songList">
-      <button onmousedown="playSong(0)">Wait and See</button>
-      <button onmousedown="playSong(1)">Count on You</button>
-      <button onmousedown="playSong(2)">We Were Then</button>
-      <button onmousedown="playSong(3)">Down Low</button>
-      <button onmousedown="playSong(4)">Feels So Good to Me</button>
-      <button onmousedown="playSong(5)">Try</button>
-      <button onmousedown="playSong(6)">Not Where I Belong</button>
-      <button onmousedown="playSong(7)">Satellite</button>
-      <button onmousedown="playSong(8)">She's a Witch</button>
-    </div>
-
-    <h2>Bad Recordings</h2>
-
-    <div class="songList">
-      <button onmousedown="playSong(9)">Mad Scientist</button>
-      <button onmousedown="playSong(10)">Summer Sun</button>
-      <button onmousedown="playSong(11)">Black Magic Baby</button>
-      <button onmousedown="playSong(12)">Paradise</button>
-      <button onmousedown="playSong(13)">Apocalypse Kid</button>
-      <button onmousedown="playSong(14)">New Machine</button>
+    <div class="content">
+      <div id="songs"></div>
     </div>
     
     <script>
-      const songs = [
-        '<%= publicPath %>/media/01 - wait and see.mp3',
-        '<%= publicPath %>/media/02 - count on you.mp3',
-        '<%= publicPath %>/media/03 - we were then.mp3',
-        '<%= publicPath %>/media/04 - down low.mp3',
-        '<%= publicPath %>/media/05 - feels so good to me.mp3',
-        '<%= publicPath %>/media/06 - try.mp3',
-        '<%= publicPath %>/media/07 - not where i belong.mp3',
-        '<%= publicPath %>/media/08 - satellite.mp3',
-        '<%= publicPath %>/media/09 - shes a witch.mp3',
-        '<%= publicPath %>/media/01 - mad scientist.mp3',
-        '<%= publicPath %>/media/02 - summer sun.mp3',
-        '<%= publicPath %>/media/03 - black magic baby.mp3',
-        '<%= publicPath %>/media/04 - paradise.mp3',
-        '<%= publicPath %>/media/05 - apocalypse kid.mp3',
-        '<%= publicPath %>/media/06 - new machine.mp3'
-      ];
+      const _player = (() => {
+        const player = document.querySelector('audio');
 
-      const canvas = document.querySelector('canvas');
-      const songButtons = document.getElementsByTagName('button');
-      const player = document.querySelector('audio');
+        player.addEventListener('ended', () => nextSong());
 
-      let songIndex = 0;
+        player.addEventListener('error', function failed(e) {
+          // audio playback failed - show a message saying why
+          // to get the source of the audio element use $(this).src
+          switch (e.target.error.code) {
+            case e.target.error.MEDIA_ERR_ABORTED:
+              alert('You aborted the video playback.');
+              break;
+            case e.target.error.MEDIA_ERR_NETWORK:
+              alert('A network error caused the audio download to fail.');
+              break;
+            case e.target.error.MEDIA_ERR_DECODE:
+              alert('The audio playback was aborted due to a corruption problem or because the video used features your browser did not support.');
+              break;
+            case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+              alert('The video audio not be loaded, either because the server or network failed or because the format is not supported.');
+              break;
+            default:
+              alert('An unknown error occurred.');
+              break;
+          }
+        }, true);
 
-      function playSong(i) {
-        selectSong(i);
+        return player;
+      })();
 
-        player.play();
-      }
+      const _songs = (() => {
+        const songs = <%-songs%>;
 
-      function selectSong(index) {
-        for (let songButton of songButtons) {
-          songButton.classList.remove('on');
-          songButton.classList.add('off');
+        let elements = []
+
+        let prevAlbumName = undefined;
+
+        for (const [songIndex, song] of songs.entries()) {
+          const { albumName, songName, url } = song;
+
+          if (albumName !== prevAlbumName) {
+            const heading = document.createElement('h2');
+            heading.innerHTML = albumName;
+
+            elements.push(heading);
+
+            prevAlbumName = albumName;
+          }
+
+          const button = document.createElement('button');
+          button.innerHTML = songName;
+          button.addEventListener('click', () => playSong(songIndex));
+
+          elements.push(button);
+
+          song.button = button;
+          song.songIndex = songIndex;
         }
 
-        songButtons[index].classList.add('on');
-        songButtons[index].classList.remove('off');
+        document.getElementById('songs').append(...elements);
 
-        if (player) {
-          player.pause();
+        return songs;
+      })();
+      
+      (() => {
+        const canvas = document.querySelector('canvas');
+
+        const canvasSize = 25 * window.devicePixelRatio;
+
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+
+        const worker = new Worker('<%=publicPath%>/scripts/animation-worker.js');
+
+        const offscreenCanvas = canvas.transferControlToOffscreen();
+
+        worker.postMessage({ 
+          message: 'start', 
+          params: { 
+            canvas: offscreenCanvas,
+            radius: canvasSize / 2
+          }
+        }, [offscreenCanvas]);
+
+        document.addEventListener('hidden', () => {
+          if (document.hidden) {
+            worker.postMessage({ message: 'standby' });
+
+            return;
+          }
+          
+          worker.postMessage({ message: 'resume'});
+        });
+      })();
+
+      let _currentSongIndex = 0;
+
+      function playSong(songIndex, { loadOnly = false } = {}) {
+        _currentSongIndex = songIndex;
+
+        if (songIndex < _songs.length) {
+          const { button, url } = _songs[songIndex];
+
+          button.classList.remove('off');
+          button.classList.add('on');
+
+          _player.pause();
+
+          _player.src = url;
+
+          _player.load();
+
+          if (!loadOnly) {
+            _player.play();
+          }
         }
 
-        player.src = songs[index];
+        for (const otherSong of _songs) {
+          if (otherSong.songIndex === songIndex) {
+            continue;
+          }
 
-        songIndex = index;
-
-        player.load();
+          otherSong.button.classList.add('off');
+          otherSong.button.classList.remove('on');
+        }
       }
 
-      player.addEventListener('ended', () => {
-        const next = (songIndex + 1) % songs.length;
-
-        if (next === 0) {
-          selectSong(0);
-
-          return;
+      function nextSong() {
+        if (_currentSongIndex === _songs.length - 1) {
+          return
         }
         
-        playSong(next);
-      });
+        playSong(_currentSongIndex + 1);
+      }
 
-      selectSong(0);
-
-      const canvasSize = 200 * window.devicePixelRatio;
-
-      canvas.width = canvasSize;
-      canvas.height = canvasSize;
-
-      const worker = new Worker('<%= publicPath %>/scripts/animation-worker.js');
-
-      const offscreenCanvas = canvas.transferControlToOffscreen();
-
-      worker.postMessage({ 
-        message: 'animate', 
-        params: { 
-          canvas: offscreenCanvas,
-          devicePixelRatio: window.devicePixelRatio, 
-          radius: canvasSize / 2
-        }
-      }, [offscreenCanvas]);
+      playSong(0, { loadOnly: true });
     </script>
   </body>
 </html>
