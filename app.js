@@ -3,7 +3,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const publicPath = `/${process.env.ritualMadnessWebPublicPath ?? 'public-5'}`;
+const publicPath = `/${process.env.ritualMadnessWebPublicPath ?? 'public-6'}`;
 
 const getFilename = (title) => title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
@@ -12,7 +12,6 @@ const songs = [
     "Wait and See",
     "Count on You",
     "We Were Then",
-    "Feels So Good to Me",
     "Satellite"
   ]],
   ["Bad Recordings", [
