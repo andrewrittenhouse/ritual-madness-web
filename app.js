@@ -3,7 +3,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const publicPath = `/${process.env.ritualMadnessWebPublicPath ?? 'public-7'}`;
+const publicPath = `/${process.env.ritualMadnessWebPublicPath ?? 'public-8'}`;
 
 const getFilename = (title) => title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
