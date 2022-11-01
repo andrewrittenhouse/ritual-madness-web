@@ -64,9 +64,9 @@
   </head>
   <body>
     <header>
-      <div class="canvas-container">
+      <!--<div class="canvas-container">
         <canvas></canvas>
-      </div> 
+      </div>--> 
       <div class="audio">
         <audio controls>
           <source />
@@ -141,7 +141,7 @@
         return songs;
       })();
       
-      (() => {
+      /*(() => {
         const canvas = document.querySelector('canvas');
 
         const canvasSize = 33 * window.devicePixelRatio;
@@ -170,7 +170,7 @@
           
           worker.postMessage({ message: 'resume'});
         });
-      })();
+      })();*/
 
       let _currentSongIndex = 0;
 
