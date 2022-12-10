@@ -11,9 +11,7 @@ const songs = [
   ["Unplugged Cyborg Demo", [
     "Wait and See",
     "Count on You",
-    "We Were Then",
-    "Down Low",
-    "Feels So Good to Me"
+    "Down Low"
   ]],
   ["Bad Recordings", [
     "Mad Scientist",
