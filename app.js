@@ -8,6 +8,11 @@ const publicPath = `/${process.env.ritualMadnessWebPublicPath ?? 'public'}`;
 const getFilename = (title) => title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
 const songs = [
+  ["Winter Warmer", [
+    "Jolly",
+    "Winter Night",
+    "Winter Blues"
+  ]],
   ["Unplugged Cyborg Demo", [
     "Wait and See",
     "Count on You",

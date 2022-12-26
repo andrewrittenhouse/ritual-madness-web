@@ -15,6 +15,7 @@
       body {
         display: flex;
         flex-direction: column;
+        align-items: center;
         color: #f2f3f4;
         background-color: #414a4c;
         font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
@@ -22,6 +23,7 @@
       }
 
       header {
+        text-align: center;
       }
 
       h2 {
@@ -57,49 +59,52 @@
         margin: 2rem 0;
       }
 
-      .audio {
-        width: 100%;
+      #message {
+        font-weight: bold;
+        color: red;
+        background-color: white;
+        border-radius: 1;
       }
     </style>
   </head>
   <body>
     <header>
-      <!--<div class="canvas-container">
-        <canvas></canvas>
-      </div>--> 
-      <div class="audio">
-        <audio controls>
-          <source />
-        </audio>
-      </div>
+      <h1>Ritual Madness</h1>
+      <p>This site is a project in the making. </p>
+      <p>If you are here, then I must have told you about it.</p>
     </header>
+
+    <audio controls>
+      <source />
+    </audio>  
+    <p id="message"></p>
 
     <div id="songs"></div>
     
     <script>
+      const messageText = document.getElementById('message');
+
       const _player = (() => {
         const player = document.querySelector('audio');
 
         player.addEventListener('ended', () => nextSong());
 
         player.addEventListener('error', function failed(e) {
-          // audio playback failed - show a message saying why
-          // to get the source of the audio element use $(this).src
           switch (e.target.error.code) {
             case e.target.error.MEDIA_ERR_ABORTED:
-              alert('You aborted the video playback.');
+              messageText.innerHTML = 'You aborted the video playback.';
               break;
             case e.target.error.MEDIA_ERR_NETWORK:
-              alert('A network error caused the audio download to fail.');
+              messageText.innerHTML = 'A network error caused the audio download to fail.';
               break;
             case e.target.error.MEDIA_ERR_DECODE:
-              alert('The audio playback was aborted due to a corruption problem or because the video used features your browser did not support.');
+              messageText.innerHTML = 'The audio playback was aborted due to a corruption problem or because the video used features your browser did not support.';
               break;
             case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-              alert('The video audio not be loaded, either because the server or network failed or because the format is not supported.');
+              messageText.innerHTML = 'The video audio not be loaded, either because the server or network failed or because the format is not supported.';
               break;
             default:
-              alert('An unknown error occurred.');
+              messageText.innerHTML = 'An unknown error occurred.';
               break;
           }
         }, true);
