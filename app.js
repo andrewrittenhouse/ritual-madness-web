@@ -9,7 +9,8 @@ const getFilename = (title) => title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
 const songs = [
   ["Cyborg", [
-    "Samurai"
+    "Electric Samurai",
+    "Time Travelling Space Alien"
   ]],
   ["Winter Warmer", [
     "Jolly",
@@ -17,7 +18,6 @@ const songs = [
     "Winter Blues"
   ]],
   ["Unplugged Cyborg Demo", [
-    "Wait and See",
     "Count on You",
     "Down Low"
   ]],
