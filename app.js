@@ -8,26 +8,17 @@ const publicPath = `/${process.env.ritualMadnessWebPublicPath ?? 'public'}`;
 const getFilename = (title) => title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
 const songs = [
-  ["Cyborg", [
-    "Electric Samurai",
-    "Time Travelling Space Alien"
-  ]],
-  ["Winter Warmer", [
-    "Jolly",
-    "Winter Night",
-    "Winter Blues"
-  ]],
-  ["Unplugged Cyborg Demo", [
-    "Count on You",
-    "Down Low"
-  ]],
-  ["Bad Recordings", [
+  ["Paradise", [
+    "Time Travellin' Space Alien",
     "Mad Scientist",
     "Summer Sun",
     "Black Magic Baby",
     "Paradise",
+    "New Machine",
+    "Electric Samurai",
     "Apocalypse Kid",
-    "New Machine"
+    "Killing Evil Spirits",
+    "Space Funk"
   ]]
 ].reduce((songs, [albumName, songNames]) => songs.concat(songNames.map(songName => ({ albumName, songName, url: `${publicPath}/songs/${getFilename(albumName)}/${getFilename(songName)}.mp3` }))), [])
 

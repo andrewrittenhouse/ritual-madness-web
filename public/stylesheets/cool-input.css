@@ -1,8 +1,8 @@
 /* cool input */
 :root {
-  --primary-color-h: 180;
-  --primary-color-s: 100%;
-  --primary-color-l: 50%;
+  --primary-color-h: 302;
+  --primary-color-s: 92%;
+  --primary-color-l: 30%;
   --primary-color: hsl(var(--primary-color-h), var(--primary-color-s), var(--primary-color-l));
   --primary-color-shadow: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 3%));
   --primary-color-shade: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 4%));
