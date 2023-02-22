@@ -3,12 +3,22 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const publicPath = `/${process.env.ritualMadnessWebPublicPath ?? 'public'}`;
+const formatUrl = (resource) => resource.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
-const getFilename = (title) => title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+const createAlbum = (albumName, songNames) => ({ 
+  albumName, 
+  songs: songNames.map(songName => ({ 
+    url: `/public/songs/${formatUrl(albumName)}/${formatUrl(songName)}.mp3`,
+    metadata: {
+      title: songName,
+      artist: "Ritual Madness",
+      album: albumName
+    }
+  }))
+});
 
-const songs = [
-  ["Paradise", [
+const albums = [
+  createAlbum("Paradise", [
     "Time Travellin' Space Alien",
     "Mad Scientist",
     "Summer Sun",
@@ -18,9 +28,12 @@ const songs = [
     "Electric Samurai",
     "Apocalypse Kid",
     "Killing Evil Spirits",
+    "Felt Like Riffin'",
     "Space Funk"
-  ]]
-].reduce((songs, [albumName, songNames]) => songs.concat(songNames.map(songName => ({ albumName, songName, url: `${publicPath}/songs/${getFilename(albumName)}/${getFilename(songName)}.mp3` }))), [])
+  ])
+];
+
+const albumData = JSON.stringify(albums);
 
 const app = express();
 
@@ -34,11 +47,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 /* BEGIN ROUTING */
-app.use(publicPath, express.static(path.join(__dirname, 'public')));
-app.use('/', (req, res) => res.render('index', { 
-  songs: JSON.stringify(songs), 
-  publicPath 
-}));
+app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use('/', (req, res) => res.render('index', { albumData }));
 /* END ROUTING */
 
 // catch 404

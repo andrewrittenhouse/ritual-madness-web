@@ -1,24 +1,12 @@
 /* cool input */
 :root {
-  --primary-color-h: 302;
-  --primary-color-s: 92%;
-  --primary-color-l: 30%;
+  --primary-color-h: 0;
+  --primary-color-s: 0%;
+  --primary-color-l: 100%;
   --primary-color: hsl(var(--primary-color-h), var(--primary-color-s), var(--primary-color-l));
   --primary-color-shadow: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 3%));
   --primary-color-shade: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 4%));
-  --primary-color-dark: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 50%));
-}
-
-input {
-  font-size: large;
-  background-color: rgb(4, 99, 7);
-  border-radius: 0.25rem;
-  color: black;
-  transition: all 0.125s linear;
-}
-
-input:focus {
-  outline: none;
+  --primary-color-dark: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 75%));
 }
 
 button {
@@ -36,6 +24,7 @@ button {
   transition: all 0.125s linear;
   font-size: large;
   color: var(--primary-color-dark);
+  text-shadow: 1px 1px var(--primary-color-shadow);
 }
 
 button:active {

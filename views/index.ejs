@@ -2,22 +2,22 @@
   <head>
     <title>Ritual Madness</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="<%= publicPath %>/stylesheets/cool-input.css">
+    <link rel="stylesheet" href="public/stylesheets/cool-input.css">
     <style>
       :root {
         --container-width: 33px;
       }
 
       * {
-        font-family: "Times New Roman", Times, serif;
+        font-family: "Verdana", sans-serif;
       }
 
       body {
         display: flex;
         flex-direction: column;
         align-items: center;
-        color: #f2f3f4;
-        background-color: #012009;
+        color: hsl(48, 11%, 83%);
+        background-color: rgb(19, 19, 19);
         font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
         margin: 1rem;
       }
@@ -92,140 +92,147 @@
     <script>
       const messageText = document.getElementById('message');
 
-      const _player = (() => {
-        const player = document.querySelector('audio');
+      const player = document.querySelector('audio');
 
-        player.addEventListener('ended', () => nextSong());
+      player.addEventListener('ended', () => nextSong());
 
-        player.addEventListener('error', function failed(e) {
-          switch (e.target.error.code) {
-            case e.target.error.MEDIA_ERR_ABORTED:
-              messageText.innerHTML = 'You aborted the video playback.';
-              break;
-            case e.target.error.MEDIA_ERR_NETWORK:
-              messageText.innerHTML = 'A network error caused the audio download to fail.';
-              break;
-            case e.target.error.MEDIA_ERR_DECODE:
-              messageText.innerHTML = 'The audio playback was aborted due to a corruption problem or because the video used features your browser did not support.';
-              break;
-            case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-              messageText.innerHTML = 'The video audio not be loaded, either because the server or network failed or because the format is not supported.';
-              break;
-            default:
-              messageText.innerHTML = 'An unknown error occurred.';
-              break;
-          }
-        }, true);
+      player.addEventListener('error', function failed(e) {
+        switch (e.target.error.code) {
+          case e.target.error.MEDIA_ERR_ABORTED:
+            messageText.innerHTML = 'You aborted the video playback.';
+            break;
+          case e.target.error.MEDIA_ERR_NETWORK:
+            messageText.innerHTML = 'A network error caused the audio download to fail.';
+            break;
+          case e.target.error.MEDIA_ERR_DECODE:
+            messageText.innerHTML = 'The audio playback was aborted due to a corruption problem or because the video used features your browser did not support.';
+            break;
+          case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+            messageText.innerHTML = 'The video audio not be loaded, either because the server or network failed or because the format is not supported.';
+            break;
+          default:
+            messageText.innerHTML = 'An unknown error occurred.';
+            break;
+        }
+      }, true);
 
-        return player;
-      })();
+      player.addEventListener('playing', () => {
+        navigator.mediaSession.playbackState = 'playing';
+      });
 
-      const _songs = (() => {
-        const songs = <%-songs%>;
+      player.addEventListener('pause', () => {
+        navigator.mediaSession.playbackState = 'paused';
+      });
 
-        let elements = []
+      function createAlbumHeader(albumName) {
+        const heading = document.createElement('h2');
+        
+        heading.innerHTML = albumName;
 
-        let prevAlbumName = undefined;
+        return heading;
+      }
 
-        for (const [songIndex, song] of songs.entries()) {
-          const { albumName, songName, url } = song;
+      function createSongButton(songIndex, songName) {
+        const button = document.createElement('button');
 
-          if (albumName !== prevAlbumName) {
-            const heading = document.createElement('h2');
-            heading.innerHTML = albumName;
+        button.innerHTML = songName;
 
-            elements.push(heading);
+        button.addEventListener('click', () => {
+          loadSong(songIndex);
+          
+          player.play();
+        });
 
-            prevAlbumName = albumName;
-          }
+        return button;
+      }
 
-          const button = document.createElement('button');
-          button.innerHTML = songName;
-          button.addEventListener('click', () => playSong(songIndex));
+      const albums = <%-albumData%>;
 
-          elements.push(button);
-
-          song.button = button;
-          song.songIndex = songIndex;
+      const [songs] = albums.reduce(([songs, songIndex], album) => {
+        for (const song of album.songs) {
+          song.button = createSongButton(songIndex++, song.metadata.title);
         }
 
-        document.getElementById('songs').append(...elements);
+        return [songs.concat(album.songs), songIndex];
+      }, [[], 0]);
 
-        return songs;
-      })();
-      
-      /*(() => {
-        const canvas = document.querySelector('canvas');
+      document.getElementById('songs').append(...albums.reduce((elements, album) => [
+        ...elements,
+        //createAlbumHeader(album.albumName),
+        ...album.songs.map(song => song.button),
+      ], []));
 
-        const canvasSize = 33 * window.devicePixelRatio;
+      let currentSongIndex = 0;
 
-        canvas.width = canvasSize;
-        canvas.height = canvasSize;
+      function loadSong(songIndex) {
+        currentSongIndex = songIndex;
 
-        const worker = new Worker('<%=publicPath%>/scripts/animation-worker.js');
+        for (let i = 0; i < songs.length; i++) {
+          const { button, metadata, url } = songs[i];
 
-        const offscreenCanvas = canvas.transferControlToOffscreen();
+          if (i !== songIndex) {
+            button.classList.add('off');
+            button.classList.remove('on');
 
-        worker.postMessage({ 
-          message: 'start', 
-          params: { 
-            canvas: offscreenCanvas,
-            radius: canvasSize / 2
+            continue;
           }
-        }, [offscreenCanvas]);
-
-        document.addEventListener('hidden', () => {
-          if (document.hidden) {
-            worker.postMessage({ message: 'standby' });
-
-            return;
-          }
-          
-          worker.postMessage({ message: 'resume'});
-        });
-      })();*/
-
-      let _currentSongIndex = 0;
-
-      function playSong(songIndex, { loadOnly = false } = {}) {
-        _currentSongIndex = songIndex;
-
-        if (songIndex < _songs.length) {
-          const { button, url } = _songs[songIndex];
 
           button.classList.remove('off');
           button.classList.add('on');
 
-          _player.pause();
+          player.pause();
 
-          _player.src = url;
+          player.src = url;
 
-          _player.load();
+          player.load();
 
-          if (!loadOnly) {
-            _player.play();
-          }
-        }
+          navigator.mediaSession.metadata = new MediaMetadata(metadata);
 
-        for (const otherSong of _songs) {
-          if (otherSong.songIndex === songIndex) {
-            continue;
-          }
-
-          otherSong.button.classList.add('off');
-          otherSong.button.classList.remove('on');
+          document.title = `Ritual Madness - ${metadata.title}`;
         }
       }
 
       function nextSong() {
-        if (_currentSongIndex === _songs.length - 1) {
+        if (currentSongIndex === songs.length - 1) {
+          navigator.mediaSession.playbackState = 'none';
+
           return
         }
         
-        playSong(_currentSongIndex + 1);
+        loadSong(currentSongIndex + 1);
+
+        player.play();
       }
 
-      playSong(0, { loadOnly: true });
+      function previousSong() {
+        if (currentSongIndex === 0) {
+          navigator.mediaSession.playbackState = 'none';
+
+          return
+        }
+
+        loadSong(currentSongIndex - 1);
+
+        player.play();
+      }
+
+      navigator.mediaSession.setActionHandler('play', () => {
+        player.play();
+      });
+
+      navigator.mediaSession.setActionHandler('pause', () => {
+        player.pause();
+      });
+
+      navigator.mediaSession.setActionHandler('previoustrack', () => {
+        previousSong();
+      });
+
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        nextSong();
+      });
+
+      loadSong(0);
     </script>
   </body>
 </html>
