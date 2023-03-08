@@ -7,6 +7,13 @@
   --primary-color-shadow: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 3%));
   --primary-color-shade: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 4%));
   --primary-color-dark: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 75%));
+  --digital-color-h: 122;
+  --digital-color-s: 92%;
+  --digital-color-l: 20%;
+  --digital-color: hsl(var(--digital-color-h), var(--digital-color-s), var(--digital-color-l));
+  --digital-color-shadow: hsl(var(--digital-color-h), var(--digital-color-s), calc(var(--digital-color-l) - 3%));
+  --digital-color-shade: hsl(var(--digital-color-h), var(--digital-color-s), calc(var(--digital-color-l) - 4%));
+  --digital-color-dark: hsl(var(--digital-color-h), var(--digital-color-s), calc(var(--digital-color-l) - 75%));
 }
 
 button {
@@ -27,7 +34,7 @@ button {
   text-shadow: 1px 1px var(--primary-color-shadow);
 }
 
-button:active {
+button:active, .active {
   top: 4px;
   box-shadow:
       0 -1px 0 0 var(--primary-color-shade) inset,
@@ -42,7 +49,7 @@ button:active.on {
       0 2px 6px 0 var(--primary-color);
 }
 
-.on {
+button.on {
   box-shadow: 
       0 -1px 0 0 var(--primary-color-shade) inset,
       0 6px 0 0 var(--primary-color-shadow),
@@ -51,6 +58,42 @@ button:active.on {
   filter: brightness(120%);
 }
 
-.off {
+button.off {
   filter: brightness(80%);
+}
+
+.drawer {
+  transition: max-height 1s ease-in-out;
+  overflow: hidden;
+  max-height: 100%;
+}
+
+.drawer.off {
+  transition: max-height 1s cubic-bezier(0, 1, 0, 1);
+  max-height: 0;
+}
+
+.digital {
+  transition: max-width 1s ease-in-out;
+  font-family: 'Courier New';
+  background-color: var(--digital-color);
+  color: black;
+  text-shadow: 1px 1px var(--digital-color-shadow);
+  box-shadow: 1px 1px 5px var(--digital-color-dark) inset;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.digital.on {
+  filter: brightness(120%);
+}
+
+.digital.off {
+  transition: max-width 1s cubic-bezier(0, 1, 0, 1);
+  max-width: 0;
+  text-shadow: none;
+}
+
+.digital:focus {
+  outline: none;
 }

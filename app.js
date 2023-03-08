@@ -30,6 +30,11 @@ const albums = [
     "Killing Evil Spirits",
     "Felt Like Riffin'",
     "Space Funk"
+  ]),
+  createAlbum("Unplugged Cyborg", [
+    "Count on You",
+    "Down Low",
+    "Feels So Good to Me"
   ])
 ];
 

@@ -56,91 +56,117 @@
       }
 
       #message {
-        font-weight: bold;
-        color: red;
-        background-color: white;
-        border-radius: 1;
+        background-color: red;
+        height: 3rem;
       }
 
-      #image {
-        padding: 4rem;
-        text-align: center;
+      .drawer button {
+        display: block;
       }
 
-      img {
-        max-width: 100%;
-        max-height: 50vh;
+      .drawer button:last-child {
+        margin-bottom: 0.5rem;
+      }
+
+      h2 {
+        white-space: nowrap;
+      }
+
+      #albums {
+        padding: 1rem 0;
+      }
+
+      #menu {
+        padding: 1rem 0;
+      }
+
+      audio {
+        margin: 1rem 0;
       }
   </style>
   </head>
   <body>
     <header>
-      <h1>Ritual Madness</h1>
+      <h1><button id="main-button">Ritual Madness</button></h1>
     </header>
+
+    <div id="menu-drawer" class="drawer off">
+      <div id="menu"></div>
+    </div>
 
     <audio controls>
       <source />
-    </audio>  
-    <p id="message"></p>
+    </audio> 
 
-    <div id="songs"></div>
+    <div id="message-drawer" class="drawer off">
+      <p id="message" class="digital"></p>
+    </div>
 
-    <div id="image">
-      
+    <h2 id="album-title" class="digital on out"></h2>
+
+    <div id="album-drawer" class="drawer">
+      <div id="albums"></div>
     </div>
     
     <script>
-      const messageText = document.getElementById('message');
+      const mainButtonElement = document.getElementById('main-button');
 
-      const player = document.querySelector('audio');
+      const menuDrawerElement = document.getElementById('menu-drawer');
+      const menuElement = document.getElementById('menu');
 
-      player.addEventListener('ended', () => nextSong());
+      const playerElement = document.querySelector('audio');
 
-      player.addEventListener('error', function failed(e) {
+      const messageDrawerElement = document.getElementById('message-drawer');
+      const messageElement = document.getElementById('message');
+
+      const albumDrawerElement = document.getElementById('album-drawer');
+      const albumsElement = document.getElementById('albums');
+
+      const albumTitleElement = document.getElementById('album-title');
+
+      playerElement.addEventListener('ended', () => nextSong());
+
+      playerElement.addEventListener('error', function failed(e) {
         switch (e.target.error.code) {
           case e.target.error.MEDIA_ERR_ABORTED:
-            messageText.innerHTML = 'You aborted the video playback.';
+            messageElement.innerHTML = 'You aborted the audio playback.';
             break;
           case e.target.error.MEDIA_ERR_NETWORK:
-            messageText.innerHTML = 'A network error caused the audio download to fail.';
+            messageElement.innerHTML = 'A network error caused the audio download to fail.';
             break;
           case e.target.error.MEDIA_ERR_DECODE:
-            messageText.innerHTML = 'The audio playback was aborted due to a corruption problem or because the video used features your browser did not support.';
+            messageElement.innerHTML = 'The audio playback was aborted due to a corruption problem or because the audio used features your browser did not support.';
             break;
           case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-            messageText.innerHTML = 'The video audio not be loaded, either because the server or network failed or because the format is not supported.';
+            messageElement.innerHTML = 'The audio could not be loaded, either because the server or network failed or because the format is not supported.';
             break;
           default:
-            messageText.innerHTML = 'An unknown error occurred.';
+            messageElement.innerHTML = 'An unknown error occurred.';
             break;
         }
+
+        messageDrawerElement.classList.remove('off');
       }, true);
 
-      player.addEventListener('playing', () => {
+      playerElement.addEventListener('playing', () => {
         navigator.mediaSession.playbackState = 'playing';
       });
 
-      player.addEventListener('pause', () => {
+      playerElement.addEventListener('pause', () => {
         navigator.mediaSession.playbackState = 'paused';
       });
-
-      function createAlbumHeader(albumName) {
-        const heading = document.createElement('h2');
-        
-        heading.innerHTML = albumName;
-
-        return heading;
-      }
 
       function createSongButton(songIndex, songName) {
         const button = document.createElement('button');
 
         button.innerHTML = songName;
 
+        button.classList.add('off');
+
         button.addEventListener('click', () => {
           loadSong(songIndex);
           
-          player.play();
+          playerElement.play();
         });
 
         return button;
@@ -148,19 +174,69 @@
 
       const albums = <%-albumData%>;
 
-      const [songs] = albums.reduce(([songs, songIndex], album) => {
-        for (const song of album.songs) {
-          song.button = createSongButton(songIndex++, song.metadata.title);
+      let songs = [];
+      let isMenuVisible = false;
+
+      function hideMenu() {
+        isMenuVisible = false;
+
+        menuDrawerElement.classList.add('off');
+        mainButtonElement.classList.remove('on');
+      }
+
+      function showMenu() {
+        isMenuVisible = true;
+
+        menuDrawerElement.classList.remove('off');
+        mainButtonElement.classList.add('on');
+      }
+
+      let currentAlbum;
+
+      function renderAlbum(album) {
+        album.button.classList.add('active');
+        album.button.classList.add('on');
+        album.button.classList.remove('off');
+
+        for (const otherAlbum of albums) {
+          if (otherAlbum === album) {
+            continue;
+          }
+
+          otherAlbum.button.classList.remove('active');
+          otherAlbum.button.classList.remove('on');
+          otherAlbum.button.classList.add('off');
         }
 
-        return [songs.concat(album.songs), songIndex];
-      }, [[], 0]);
+        hideMenu();
 
-      document.getElementById('songs').append(...albums.reduce((elements, album) => [
-        ...elements,
-        //createAlbumHeader(album.albumName),
-        ...album.songs.map(song => song.button),
-      ], []));
+        if (currentAlbum === album) {
+          return;
+        }
+
+        albumDrawerElement.classList.add('off');
+        messageDrawerElement.classList.add('off');
+        albumTitleElement.classList.add('off');
+
+        setTimeout(() => {
+          songs.forEach(({ button }) => button.remove());
+
+          albumTitleElement.innerHTML = album.albumName;
+
+          songs = album.songs.map((song, i) => ({ ...song, button: createSongButton(i, song.metadata.title) }));
+
+          albumsElement.append(...songs.map(song => song.button));
+
+          albumDrawerElement.classList.remove('off');
+          albumTitleElement.classList.remove('off');
+
+          messageElement.innerHTML = '';
+
+          loadSong(0);
+        }, !currentAlbum ? 0 : 1000);
+
+        currentAlbum = album;
+      }
 
       let currentSongIndex = 0;
 
@@ -180,11 +256,11 @@
           button.classList.remove('off');
           button.classList.add('on');
 
-          player.pause();
+          playerElement.pause();
 
-          player.src = url;
+          playerElement.src = url;
 
-          player.load();
+          playerElement.load();
 
           navigator.mediaSession.metadata = new MediaMetadata(metadata);
 
@@ -201,7 +277,7 @@
         
         loadSong(currentSongIndex + 1);
 
-        player.play();
+        playerElement.play();
       }
 
       function previousSong() {
@@ -213,15 +289,15 @@
 
         loadSong(currentSongIndex - 1);
 
-        player.play();
+        playerElement.play();
       }
 
       navigator.mediaSession.setActionHandler('play', () => {
-        player.play();
+        playerElement.play();
       });
 
       navigator.mediaSession.setActionHandler('pause', () => {
-        player.pause();
+        playerElement.pause();
       });
 
       navigator.mediaSession.setActionHandler('previoustrack', () => {
@@ -231,6 +307,30 @@
       navigator.mediaSession.setActionHandler('nexttrack', () => {
         nextSong();
       });
+
+      mainButtonElement.addEventListener('click', () => {
+        if (isMenuVisible) {
+          hideMenu();
+        } else {
+          showMenu();
+        }
+      });
+
+      for (const album of albums) {
+        const button = document.createElement('button');
+
+        button.innerHTML = album.albumName;
+
+        button.addEventListener('click', () => {
+          renderAlbum(album);
+        });
+
+        menuElement.append(button);
+
+        album.button = button;
+      }
+
+      renderAlbum(albums[0]);
 
       loadSong(0);
     </script>
