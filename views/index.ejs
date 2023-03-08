@@ -57,7 +57,6 @@
 
       #message {
         background-color: red;
-        height: 3rem;
       }
 
       .drawer button {
@@ -124,26 +123,23 @@
 
       const albumTitleElement = document.getElementById('album-title');
 
-      playerElement.addEventListener('ended', () => nextSong());
+      let canPlay = false;
 
-      playerElement.addEventListener('error', function failed(e) {
-        switch (e.target.error.code) {
-          case e.target.error.MEDIA_ERR_ABORTED:
-            messageElement.innerHTML = 'You aborted the audio playback.';
-            break;
-          case e.target.error.MEDIA_ERR_NETWORK:
-            messageElement.innerHTML = 'A network error caused the audio download to fail.';
-            break;
-          case e.target.error.MEDIA_ERR_DECODE:
-            messageElement.innerHTML = 'The audio playback was aborted due to a corruption problem or because the audio used features your browser did not support.';
-            break;
-          case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-            messageElement.innerHTML = 'The audio could not be loaded, either because the server or network failed or because the format is not supported.';
-            break;
-          default:
-            messageElement.innerHTML = 'An unknown error occurred.';
-            break;
-        }
+      playerElement.addEventListener('canplay', () => {
+        canPlay = true;
+      });
+
+      playerElement.addEventListener('ended', () => {
+        nextSong();
+      });
+
+      playerElement.addEventListener('error', (e) => {
+        messageElement.innerHTML = {
+          [e.target.error.MEDIA_ERR_ABORTED]: 'You aborted the audio playback.',
+          [e.target.error.MEDIA_ERR_NETWORK]: 'A network error caused the audio download to fail.',
+          [e.target.error.MEDIA_ERR_DECODE]: 'The audio playback was aborted due to a corruption problem or because the audio used features your browser did not support.',
+          [e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED]: 'The audio could not be loaded, either because the server or network failed or because the format is not supported.',
+        }[e.target.error.code];
 
         messageDrawerElement.classList.remove('off');
       }, true);
@@ -156,6 +152,33 @@
         navigator.mediaSession.playbackState = 'paused';
       });
 
+      function hideMenu() {
+        isMenuVisible = false;
+
+        menuDrawerElement.classList.add('off');
+      }
+
+      function showMenu() {
+        isMenuVisible = true;
+
+        menuDrawerElement.classList.remove('off');
+      }
+
+      function toggleMenu() {
+        if (isMenuVisible) {
+          hideMenu();
+        } else {
+          showMenu();
+        }
+      }
+
+      const albums = <%-albumData%>;
+
+      let songs = [];
+      let isMenuVisible = false;
+
+      let currentAlbum;
+
       function createSongButton(songIndex, songName) {
         const button = document.createElement('button');
 
@@ -165,36 +188,16 @@
 
         button.addEventListener('click', () => {
           loadSong(songIndex);
-          
-          playerElement.play();
         });
 
         return button;
       }
 
-      const albums = <%-albumData%>;
-
-      let songs = [];
-      let isMenuVisible = false;
-
-      function hideMenu() {
-        isMenuVisible = false;
-
-        menuDrawerElement.classList.add('off');
-        mainButtonElement.classList.remove('on');
-      }
-
-      function showMenu() {
-        isMenuVisible = true;
-
-        menuDrawerElement.classList.remove('off');
-        mainButtonElement.classList.add('on');
-      }
-
-      let currentAlbum;
-
       function renderAlbum(album) {
-        album.button.classList.add('active');
+        if (currentAlbum === album) {
+          return;
+        }
+
         album.button.classList.add('on');
         album.button.classList.remove('off');
 
@@ -203,15 +206,8 @@
             continue;
           }
 
-          otherAlbum.button.classList.remove('active');
           otherAlbum.button.classList.remove('on');
           otherAlbum.button.classList.add('off');
-        }
-
-        hideMenu();
-
-        if (currentAlbum === album) {
-          return;
         }
 
         albumDrawerElement.classList.add('off');
@@ -230,8 +226,6 @@
           albumDrawerElement.classList.remove('off');
           albumTitleElement.classList.remove('off');
 
-          messageElement.innerHTML = '';
-
           loadSong(0);
         }, !currentAlbum ? 0 : 1000);
 
@@ -241,6 +235,8 @@
       let currentSongIndex = 0;
 
       function loadSong(songIndex) {
+        messageDrawerElement.classList.add('off');
+
         currentSongIndex = songIndex;
 
         for (let i = 0; i < songs.length; i++) {
@@ -265,6 +261,10 @@
           navigator.mediaSession.metadata = new MediaMetadata(metadata);
 
           document.title = `Ritual Madness - ${metadata.title}`;
+
+          if (canPlay) {
+            playerElement.play();
+          }
         }
       }
 
@@ -276,20 +276,16 @@
         }
         
         loadSong(currentSongIndex + 1);
-
-        playerElement.play();
       }
 
       function previousSong() {
-        if (currentSongIndex === 0) {
-          navigator.mediaSession.playbackState = 'none';
+        if (playerElement.currentTime > 5) {
+          playerElement.currentTime = 0;
 
-          return
-        }
-
-        loadSong(currentSongIndex - 1);
-
-        playerElement.play();
+          return;
+        } 
+        
+        loadSong((currentSongIndex === 0) ? songs.length - 1 : currentSongIndex - 1);
       }
 
       navigator.mediaSession.setActionHandler('play', () => {
@@ -309,14 +305,26 @@
       });
 
       mainButtonElement.addEventListener('click', () => {
-        if (isMenuVisible) {
-          hideMenu();
-        } else {
-          showMenu();
+        if (currentAlbum === albums[0]) {
+          toggleMenu();
+
+          return;
         }
+
+        hideMenu();
+
+        renderAlbum(albums[0]);
       });
 
-      for (const album of albums) {
+      mainButtonElement.innerHTML = albums[0].albumName;
+
+      albums[0].button = mainButtonElement;
+
+      albums.forEach((album, i) => {
+        if (i === 0) {
+          return;
+        }
+
         const button = document.createElement('button');
 
         button.innerHTML = album.albumName;
@@ -328,7 +336,7 @@
         menuElement.append(button);
 
         album.button = button;
-      }
+      });
 
       renderAlbum(albums[0]);
 

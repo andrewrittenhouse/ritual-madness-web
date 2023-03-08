@@ -18,7 +18,7 @@ const createAlbum = (albumName, songNames) => ({
 });
 
 const albums = [
-  createAlbum("Paradise", [
+  createAlbum("Ritual Madness", [
     "Time Travellin' Space Alien",
     "Mad Scientist",
     "Summer Sun",
