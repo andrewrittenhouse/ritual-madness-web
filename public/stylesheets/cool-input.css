@@ -1,19 +1,12 @@
 /* cool input */
 :root {
-  --primary-color-h: 0;
-  --primary-color-s: 0%;
-  --primary-color-l: 100%;
+  --primary-color-h: 230;
+  --primary-color-s: 100%;
+  --primary-color-l: 64%;
   --primary-color: hsl(var(--primary-color-h), var(--primary-color-s), var(--primary-color-l));
   --primary-color-shadow: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 3%));
   --primary-color-shade: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 4%));
   --primary-color-dark: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 75%));
-  --digital-color-h: 122;
-  --digital-color-s: 92%;
-  --digital-color-l: 20%;
-  --digital-color: hsl(var(--digital-color-h), var(--digital-color-s), var(--digital-color-l));
-  --digital-color-shadow: hsl(var(--digital-color-h), var(--digital-color-s), calc(var(--digital-color-l) - 3%));
-  --digital-color-shade: hsl(var(--digital-color-h), var(--digital-color-s), calc(var(--digital-color-l) - 4%));
-  --digital-color-dark: hsl(var(--digital-color-h), var(--digital-color-s), calc(var(--digital-color-l) - 75%));
 }
 
 button {
@@ -76,10 +69,10 @@ button.off {
 .digital {
   transition: max-width 1s ease-in-out;
   font-family: 'Courier New';
-  background-color: var(--digital-color);
+  background-color: var(--primary-color-shadow);
   color: black;
-  text-shadow: 1px 1px var(--digital-color-shadow);
-  box-shadow: 1px 1px 5px var(--digital-color-dark) inset;
+  text-shadow: 1px 1px var(--primary-color-shade);
+  box-shadow: 1px 1px 5px var(--primary-color-dark) inset;
   max-width: 100%;
   overflow: hidden;
 }

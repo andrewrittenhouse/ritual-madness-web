@@ -6,7 +6,8 @@ const logger = require('morgan');
 const formatUrl = (resource) => resource.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
 const createAlbum = (albumName, songNames) => ({ 
-  albumName, 
+  albumName,
+  albumSlug: `/${formatUrl(albumName)}`,
   songs: songNames.map(songName => ({ 
     url: `/public/songs/${formatUrl(albumName)}/${formatUrl(songName)}.mp3`,
     metadata: {
@@ -34,7 +35,14 @@ const albums = [
   createAlbum("Unplugged Cyborg", [
     "Count on You",
     "Down Low",
-    "Feels So Good to Me"
+    "Feels So Good to Me",
+    "Wait and See",
+    "Satellite"
+  ]),
+  createAlbum("Winter Warmer", [
+    "Jolly",
+    "Winter Blues",
+    "Winter Night"
   ])
 ];
 

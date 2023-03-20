@@ -3,11 +3,7 @@
     <title>Ritual Madness</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="public/stylesheets/cool-input.css">
-    <style>
-      :root {
-        --container-width: 33px;
-      }
-
+      <style>
       * {
         font-family: "Verdana", sans-serif;
       }
@@ -16,8 +12,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        color: hsl(48, 11%, 83%);
-        background-color: rgb(19, 19, 19);
+        background: radial-gradient(circle, #ff3333 25%, #4564ff 100%);
         font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
         margin: 1rem;
       }
@@ -26,37 +21,9 @@
         text-align: center;
       }
 
-      .canvas-container {
-        padding: 1rem 133px;
-      }
-
-      #songs {
-        display: flex;
-        flex-direction: column;
-        align-items: start;
-        margin-top: 1rem;
-      }
-
-      #songs div {
-        border: 1px solid black;
-        border-radius: 1rem;
-        margin-top: 1rem;
-      }
-
-      #songs div:hover {
-        cursor: pointer;
-        color: white;
-        background-color: black;
-      }
-
-      canvas {
-        height: var(--container-width);
-        width: var(--container-width);
-        margin: 2rem 0;
-      }
-
       #message {
         background-color: red;
+        padding: .25rem;
       }
 
       .drawer button {
@@ -69,6 +36,8 @@
 
       h2 {
         white-space: nowrap;
+        padding: .25rem;
+        margin: 0;
       }
 
       #albums {
@@ -82,6 +51,11 @@
       audio {
         margin: 1rem 0;
       }
+
+      audio::-webkit-media-controls-panel {
+        background-color: white;
+      }
+
   </style>
   </head>
   <body>
@@ -101,7 +75,9 @@
       <p id="message" class="digital"></p>
     </div>
 
-    <h2 id="album-title" class="digital on out"></h2>
+    <div id="album-title-display" class="digital on out">
+      <h2 id="album-title"></h2>
+    </div>
 
     <div id="album-drawer" class="drawer">
       <div id="albums"></div>
@@ -121,6 +97,7 @@
       const albumDrawerElement = document.getElementById('album-drawer');
       const albumsElement = document.getElementById('albums');
 
+      const albumTitleDisplayElement = document.getElementById('album-title-display');
       const albumTitleElement = document.getElementById('album-title');
 
       let canPlay = false;
@@ -134,12 +111,7 @@
       });
 
       playerElement.addEventListener('error', (e) => {
-        messageElement.innerHTML = {
-          [e.target.error.MEDIA_ERR_ABORTED]: 'You aborted the audio playback.',
-          [e.target.error.MEDIA_ERR_NETWORK]: 'A network error caused the audio download to fail.',
-          [e.target.error.MEDIA_ERR_DECODE]: 'The audio playback was aborted due to a corruption problem or because the audio used features your browser did not support.',
-          [e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED]: 'The audio could not be loaded, either because the server or network failed or because the format is not supported.',
-        }[e.target.error.code];
+        messageElement.innerHTML = playerElement.error.message;
 
         messageDrawerElement.classList.remove('off');
       }, true);
@@ -184,8 +156,6 @@
 
         button.innerHTML = songName;
 
-        button.classList.add('off');
-
         button.addEventListener('click', () => {
           loadSong(songIndex);
         });
@@ -212,7 +182,7 @@
 
         albumDrawerElement.classList.add('off');
         messageDrawerElement.classList.add('off');
-        albumTitleElement.classList.add('off');
+        albumTitleDisplayElement.classList.add('off');
 
         setTimeout(() => {
           songs.forEach(({ button }) => button.remove());
@@ -224,7 +194,7 @@
           albumsElement.append(...songs.map(song => song.button));
 
           albumDrawerElement.classList.remove('off');
-          albumTitleElement.classList.remove('off');
+          albumTitleDisplayElement.classList.remove('off');
 
           loadSong(0);
         }, !currentAlbum ? 0 : 1000);
@@ -243,13 +213,11 @@
           const { button, metadata, url } = songs[i];
 
           if (i !== songIndex) {
-            button.classList.add('off');
             button.classList.remove('on');
 
             continue;
           }
 
-          button.classList.remove('off');
           button.classList.add('on');
 
           playerElement.pause();
@@ -260,7 +228,7 @@
 
           navigator.mediaSession.metadata = new MediaMetadata(metadata);
 
-          document.title = `Ritual Madness - ${metadata.title}`;
+          document.title = `${currentAlbum.albumName} - ${metadata.title}`;
 
           if (canPlay) {
             playerElement.play();
@@ -313,10 +281,10 @@
 
         hideMenu();
 
+        history.replaceState({}, albums[0].name, '/');
+
         renderAlbum(albums[0]);
       });
-
-      mainButtonElement.innerHTML = albums[0].albumName;
 
       albums[0].button = mainButtonElement;
 
@@ -330,6 +298,8 @@
         button.innerHTML = album.albumName;
 
         button.addEventListener('click', () => {
+          history.replaceState({}, album.name, album.albumSlug);
+
           renderAlbum(album);
         });
 
@@ -338,9 +308,23 @@
         album.button = button;
       });
 
-      renderAlbum(albums[0]);
+      window.addEventListener('load', () => {
+        const album = albums.find(album => album.albumSlug === location.pathname);
 
-      loadSong(0);
+        if (!album) {
+          history.replaceState({}, albums[0].albumName, albums[0].albumSlug);
+
+          renderAlbum(albums[0]);
+
+          return;
+        }
+
+        renderAlbum(album);
+
+        showMenu();
+
+        loadSong(0);
+      });
     </script>
   </body>
 </html>
