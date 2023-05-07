@@ -20,17 +20,17 @@ const createAlbum = (albumName, songNames) => ({
 
 const albums = [
   createAlbum("Ritual Madness", [
-    "Time Travellin' Space Alien",
     "Mad Scientist",
     "Summer Sun",
     "Black Magic Baby",
     "Paradise",
     "New Machine",
-    "Electric Samurai",
     "Apocalypse Kid",
+    "Electric Samurai",
     "Killing Evil Spirits",
     "Felt Like Riffin'",
-    "Space Funk"
+    "Space Funk",
+    "Time Travellin' Space Alien"
   ]),
   createAlbum("Unplugged Cyborg", [
     "Count on You",
