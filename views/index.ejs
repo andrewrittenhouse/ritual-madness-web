@@ -12,13 +12,31 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        background: radial-gradient(circle, #ff3333 25%, #4564ff 100%);
         font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
         margin: 1rem;
       }
 
       header {
         text-align: center;
+      }
+
+      .posters {
+        position: absolute;
+
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+
+        white-space: nowrap;
+      }
+
+      #posters {
+        position: relative;
+
+        overflow: hidden;
+
+        height: 100%;
       }
 
       #message {
@@ -51,14 +69,13 @@
       audio {
         margin: 1rem 0;
       }
-
-      audio::-webkit-media-controls-panel {
-        background-color: white;
-      }
-
   </style>
   </head>
   <body>
+    <div class="posters">
+      <div id="posters"></div>
+    </div>
+
     <header>
       <h1><button id="main-button">Ritual Madness</button></h1>
     </header>
@@ -73,10 +90,6 @@
 
     <div id="message-drawer" class="drawer off">
       <p id="message" class="digital"></p>
-    </div>
-
-    <div id="album-title-display" class="digital on out">
-      <h2 id="album-title"></h2>
     </div>
 
     <div id="album-drawer" class="drawer">
@@ -96,9 +109,6 @@
 
       const albumDrawerElement = document.getElementById('album-drawer');
       const albumsElement = document.getElementById('albums');
-
-      const albumTitleDisplayElement = document.getElementById('album-title-display');
-      const albumTitleElement = document.getElementById('album-title');
 
       let canPlay = false;
 
@@ -182,19 +192,15 @@
 
         albumDrawerElement.classList.add('off');
         messageDrawerElement.classList.add('off');
-        albumTitleDisplayElement.classList.add('off');
 
         setTimeout(() => {
           songs.forEach(({ button }) => button.remove());
-
-          albumTitleElement.innerHTML = album.albumName;
 
           songs = album.songs.map((song, i) => ({ ...song, button: createSongButton(i, song.metadata.title) }));
 
           albumsElement.append(...songs.map(song => song.button));
 
           albumDrawerElement.classList.remove('off');
-          albumTitleDisplayElement.classList.remove('off');
 
           loadSong(0);
         }, !currentAlbum ? 0 : 1000);
@@ -312,8 +318,6 @@
         const album = albums.find(album => album.albumSlug === location.pathname);
 
         if (!album) {
-          history.replaceState({}, albums[0].albumName, albums[0].albumSlug);
-
           renderAlbum(albums[0]);
 
           return;
@@ -325,6 +329,50 @@
 
         loadSong(0);
       });
+
+      const TOTAL_POSTER_COUNT = 60;
+      const POSTER_SIZE = 66;
+
+      function createPosterImage(posterIndex) {
+        const img = document.createElement('img');
+
+        img.src = `/public/posters/${posterIndex}.png`;
+        
+        img.height = POSTER_SIZE;
+        img.width = POSTER_SIZE;
+
+        return img;
+      }
+
+      const posterElement = document.getElementById('posters');
+
+      let debounceTimeout;
+
+      const resizeObserver = new ResizeObserver(() => {
+        clearTimeout(debounceTimeout);
+
+        debounceTimeout = setTimeout(() => {
+          requestAnimationFrame(() => {
+            const { width, height } = document.body.getBoundingClientRect();
+
+            posterElement.innerHTML = '';
+
+            for (let i = 0; i < Math.ceil(height / POSTER_SIZE) + 1; i++) {
+              const row = document.createElement('div');
+
+              for (let ii = 0; ii < Math.ceil(width / POSTER_SIZE) + 1; ii++) {
+                const posterIndex = Math.floor(Math.random() * TOTAL_POSTER_COUNT);
+
+                row.append(createPosterImage(posterIndex));
+              }
+
+              posterElement.append(row);
+            }
+          });
+        }, 200);
+      });
+
+      resizeObserver.observe(document.body);
     </script>
   </body>
 </html>

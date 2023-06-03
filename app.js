@@ -20,17 +20,17 @@ const createAlbum = (albumName, songNames) => ({
 
 const albums = [
   createAlbum("Ritual Madness", [
-    "Mad Scientist",
+//    "Mad Scientist",
     "Summer Sun",
-    "Black Magic Baby",
-    "Paradise",
-    "New Machine",
-    "Apocalypse Kid",
-    "Electric Samurai",
-    "Killing Evil Spirits",
-    "Felt Like Riffin'",
-    "Space Funk",
-    "Time Travellin' Space Alien"
+//    "Killing Evil Spirits",
+//    "Apocalypse Kid",
+//    "New Machine",
+    // "Black Magic Baby",
+    // "Paradise",
+    // "Electric Samurai",
+    // "Felt Like Riffin'",
+    // "Space Funk",
+    // "Time Travellin' Space Alien"
   ]),
   createAlbum("Unplugged Cyborg", [
     "Count on You",
@@ -61,7 +61,11 @@ app.use(cookieParser());
 
 /* BEGIN ROUTING */
 app.use('/public', express.static(path.join(__dirname, 'public')));
-app.use('/', (req, res) => res.render('index', { albumData }));
+app.use('/', async (req, res) => {
+
+
+  res.render('index', { albumData })
+});
 /* END ROUTING */
 
 // catch 404
