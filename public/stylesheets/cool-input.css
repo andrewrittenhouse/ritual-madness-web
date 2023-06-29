@@ -69,12 +69,9 @@ button.off {
 .digital {
   transition: max-width 1s ease-in-out;
   font-family: 'Courier New';
-  background-color: var(--primary-color-shadow);
-  color: black;
-  text-shadow: 1px 1px var(--primary-color-shade);
-  box-shadow: 1px 1px 5px var(--primary-color-dark) inset;
-  max-width: 100%;
-  overflow: hidden;
+  background-color: black;
+  color: rgb(51, 255, 51);
+  box-shadow: 1px 1px 10px gray inset;
 }
 
 .digital.on {

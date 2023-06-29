@@ -20,29 +20,7 @@ const createAlbum = (albumName, songNames) => ({
 
 const albums = [
   createAlbum("Ritual Madness", [
-//    "Mad Scientist",
-    "Summer Sun",
-//    "Killing Evil Spirits",
-//    "Apocalypse Kid",
-//    "New Machine",
-    // "Black Magic Baby",
-    // "Paradise",
-    // "Electric Samurai",
-    // "Felt Like Riffin'",
-    // "Space Funk",
-    // "Time Travellin' Space Alien"
-  ]),
-  createAlbum("Unplugged Cyborg", [
-    "Count on You",
-    "Down Low",
-    "Feels So Good to Me",
-    "Wait and See",
-    "Satellite"
-  ]),
-  createAlbum("Winter Warmer", [
-    "Jolly",
-    "Winter Blues",
-    "Winter Night"
+    "Summer Sun"
   ])
 ];
 

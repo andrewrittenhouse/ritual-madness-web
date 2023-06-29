@@ -62,6 +62,13 @@
         padding: 1rem 0;
       }
 
+      #album-title {
+        text-align: center;
+
+        font-size: 22px;
+        padding: 1rem;
+      }
+
       #menu {
         padding: 1rem 0;
       }
@@ -77,7 +84,7 @@
     </div>
 
     <header>
-      <h1><button id="main-button">Ritual Madness</button></h1>
+      <div id="album-title" class="digital on">Ritual_Madness</div>
     </header>
 
     <div id="menu-drawer" class="drawer off">
@@ -97,8 +104,6 @@
     </div>
     
     <script>
-      const mainButtonElement = document.getElementById('main-button');
-
       const menuDrawerElement = document.getElementById('menu-drawer');
       const menuElement = document.getElementById('menu');
 
@@ -107,6 +112,7 @@
       const messageDrawerElement = document.getElementById('message-drawer');
       const messageElement = document.getElementById('message');
 
+      //const albumTitleElement = document.getElementById('album-title');
       const albumDrawerElement = document.getElementById('album-drawer');
       const albumsElement = document.getElementById('albums');
 
@@ -178,8 +184,10 @@
           return;
         }
 
-        album.button.classList.add('on');
-        album.button.classList.remove('off');
+        // albumTitleElement.innerHTML = album.albumName;
+
+        // album.button.classList.add('on');
+        // album.button.classList.remove('off');
 
         for (const otherAlbum of albums) {
           if (otherAlbum === album) {
@@ -275,44 +283,48 @@
       });
 
       navigator.mediaSession.setActionHandler('nexttrack', () => {
-        nextSong();
-      });
+        if (currentSongIndex === songs.length - 1) {
+          loadSong(0);
 
-      mainButtonElement.addEventListener('click', () => {
-        if (currentAlbum === albums[0]) {
-          toggleMenu();
-
-          return;
+          return
         }
-
-        hideMenu();
-
-        history.replaceState({}, albums[0].name, '/');
-
-        renderAlbum(albums[0]);
       });
 
-      albums[0].button = mainButtonElement;
+      // mainButtonElement.addEventListener('click', () => {
+      //   if (currentAlbum === albums[0]) {
+      //     toggleMenu();
 
-      albums.forEach((album, i) => {
-        if (i === 0) {
-          return;
-        }
+      //     return;
+      //   }
 
-        const button = document.createElement('button');
+      //   hideMenu();
 
-        button.innerHTML = album.albumName;
+      //   history.replaceState({}, albums[0].name, '/');
 
-        button.addEventListener('click', () => {
-          history.replaceState({}, album.name, album.albumSlug);
+      //   renderAlbum(albums[0]);
+      // });
 
-          renderAlbum(album);
-        });
+      // albums[0].button = mainButtonElement;
 
-        menuElement.append(button);
+      // albums.forEach((album, i) => {
+      //   if (i === 0) {
+      //     return;
+      //   }
 
-        album.button = button;
-      });
+      //   const button = document.createElement('button');
+
+      //   button.innerHTML = album.albumName;
+
+      //   button.addEventListener('click', () => {
+      //     history.replaceState({}, album.name, album.albumSlug);
+
+      //     renderAlbum(album);
+      //   });
+
+      //   menuElement.append(button);
+
+      //   album.button = button;
+      // });
 
       window.addEventListener('load', () => {
         const album = albums.find(album => album.albumSlug === location.pathname);
