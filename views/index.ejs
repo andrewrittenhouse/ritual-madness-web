@@ -8,12 +8,33 @@
         font-family: "Verdana", sans-serif;
       }
 
+      html {
+        height: 100%;
+      }
+
       body {
         display: flex;
         flex-direction: column;
         align-items: center;
         font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-        margin: 1rem;
+        margin: 0;
+
+        height: 100%;
+
+        justify-content: space-around;
+      }
+
+      .content {
+        position: relative;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .video-container {
+        padding: 4rem;
       }
 
       header {
@@ -74,7 +95,12 @@
       }
 
       audio {
+        display: none;
         margin: 1rem 0;
+      }
+
+      #album-drawer {
+        display: none;
       }
   </style>
   </head>
@@ -87,21 +113,31 @@
       <div id="album-title" class="digital on">Ritual_Madness</div>
     </header>
 
-    <div id="menu-drawer" class="drawer off">
-      <div id="menu"></div>
+    <div class="content">
+      <div id="menu-drawer" class="drawer off">
+        <div id="menu"></div>
+      </div>
+
+      <audio controls>
+        <source />
+      </audio> 
+
+      <div id="message-drawer" class="drawer off">
+        <p id="message" class="digital"></p>
+      </div>
+
+      <div id="album-drawer" class="drawer">
+        <div id="albums"></div>
+      </div>
+
+      <div class="video-container digital">
+        <video controls width="250">
+          <source src="/public/dead radio.mp4" type="video/webm">
+        </video>
+      </div>
     </div>
 
-    <audio controls>
-      <source />
-    </audio> 
-
-    <div id="message-drawer" class="drawer off">
-      <p id="message" class="digital"></p>
-    </div>
-
-    <div id="album-drawer" class="drawer">
-      <div id="albums"></div>
-    </div>
+    <div class="space"></div>
     
     <script>
       const menuDrawerElement = document.getElementById('menu-drawer');
