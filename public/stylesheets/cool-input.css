@@ -7,6 +7,7 @@
   --primary-color-shadow: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 3%));
   --primary-color-shade: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 7%));
   --primary-color-dark: hsl(var(--primary-color-h), var(--primary-color-s), calc(var(--primary-color-l) - 50%));
+  --digital-green: rgb(51, 255, 51);
 }
 
 button {
@@ -70,7 +71,7 @@ button.off {
   transition: max-width 1s ease-in-out;
   font-family: 'Courier New';
   background-color: black;
-  color: rgb(51, 255, 51);
+  color: var(--digital-green);
   box-shadow: 1px 1px 10px gray inset;
 }
 
@@ -86,4 +87,14 @@ button.off {
 
 .digital:focus {
   outline: none;
+}
+
+input {
+  padding: 0.5rem;
+}
+
+input:focus, textarea:focus {
+  border-color: var(--digital-green);
+
+  padding: 0.5rem;
 }

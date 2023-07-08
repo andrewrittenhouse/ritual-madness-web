@@ -1,11 +1,12 @@
 <html>
   <head>
     <title>Ritual Madness</title>
+    <meta name="description" content="Live punk rock and experimental electronic music at State Street Pub, Indianapolis Indiana, August 19th 2023, with Data Unknown, Fen Fen, and Ritual Madness featuring Matt Hagan.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="public/stylesheets/cool-input.css">
       <style>
       * {
-        font-family: "Verdana", sans-serif;
+        font-family: "Courier New";
       }
 
       html {
@@ -13,414 +14,289 @@
       }
 
       body {
+        background-color: black;
+        color: var(--digital-green);
+
         display: flex;
         flex-direction: column;
         align-items: center;
-        font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-        margin: 0;
+        justify-content: space-around;
+
+        font: 14px;
 
         height: 100%;
 
+        margin: 0;
+      }
+
+      .buttons {
+        display: flex;
         justify-content: space-around;
       }
 
-      .content {
-        position: relative;
+      .video-container {
+        max-height: 50%;
+        padding: 4rem 2rem;
+      }
+
+      video {
+        max-height: 100%;
+        width: 100%;
+      }
+
+      .space {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+
+        text-align: center;
+
+        padding-bottom: 2rem;
+
+        width: 100%;
+      }
+
+      .space div {
+        width: 50%;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .blink {
+        animation: blink 1.5s steps(2) infinite;
+      }
+
+      @keyframes blink {
+        0% {
+          opacity: 0;
+        }
+      }
+
+      textarea {
+        height: 100%;
+        width: 100%;
+      }
+
+      .flyer {
+        padding: 1rem;
+      }
+
+      #contact {
+        height: 75%;
+
+        width: 100%;
+      }
+
+      #contact > div {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 0 2rem;
+      }
+
+      #contact > div > div {
+        padding: 1rem;
+      }
+
+      #flyer {
+        height: 75%;
+      }
+
+      #flyer > div {
+        padding: 1rem;
 
         display: flex;
         flex-direction: column;
+        justify-content: space-around;
         align-items: center;
-        justify-content: center;
-      }
-
-      .video-container {
-        padding: 4rem;
-      }
-
-      header {
-        text-align: center;
-      }
-
-      .posters {
-        position: absolute;
-
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-
-        white-space: nowrap;
-      }
-
-      #posters {
-        position: relative;
-
-        overflow: hidden;
 
         height: 100%;
       }
 
-      #message {
-        background-color: red;
-        padding: .25rem;
-      }
-
-      .drawer button {
-        display: block;
-      }
-
-      .drawer button:last-child {
-        margin-bottom: 0.5rem;
-      }
-
-      h2 {
-        white-space: nowrap;
-        padding: .25rem;
-        margin: 0;
-      }
-
-      #albums {
-        padding: 1rem 0;
-      }
-
-      #album-title {
-        text-align: center;
-
-        font-size: 22px;
+      .video-container {
         padding: 1rem;
       }
 
-      #menu {
-        padding: 1rem 0;
+      .contact-input-container {
+        padding: 1rem;
+        height: 100%;
       }
 
-      audio {
-        display: none;
-        margin: 1rem 0;
+      .container {
+        padding: 1rem;
       }
 
-      #album-drawer {
-        display: none;
+      label {
+        margin-top: 2rem;
       }
-  </style>
+
+      textarea {
+        padding: 0.5rem;
+      }
+    </style>
   </head>
   <body>
-    <div class="posters">
-      <div id="posters"></div>
-    </div>
+    <div id="flyer">
+      <div>
+        <div class="flyer digital">
+          Ritual Madness<br />
+          Saturday, August 19, 2023<br />
+          <br />
+          State Street Pub<br />
+          Indianapolis<br />
+          <br />
+          Featuring Matt Hagan<br />
+          w/<br />
+          Data Unknown<br />
+          Fen Fen<span class="blink">_</span><br />
+        </div>
 
-    <header>
-      <div id="album-title" class="digital on">Ritual_Madness</div>
-    </header>
-
-    <div class="content">
-      <div id="menu-drawer" class="drawer off">
-        <div id="menu"></div>
-      </div>
-
-      <audio controls>
-        <source />
-      </audio> 
-
-      <div id="message-drawer" class="drawer off">
-        <p id="message" class="digital"></p>
-      </div>
-
-      <div id="album-drawer" class="drawer">
-        <div id="albums"></div>
-      </div>
-
-      <div class="video-container digital">
-        <video controls width="250">
-          <source src="/public/dead radio.mp4" type="video/webm">
-        </video>
+        <div class="video-container digital">
+          <video controls src="/video.mp4" type="video/mp4"></video>
+        </div>
       </div>
     </div>
+    <div id="contact" class="hidden">
+      <div>
+        <label>Email or Phone Number</label>
+        <input id="contact-method" class="digital" />
+        <label>Message</label>
+        <textarea id="message" class="digital"></textarea>
+        <div class="buttons">
+          <button id="contact-close-button">✕ Close</button>
+          <button id="send-button">Send ✉</button>
+        </div>
+      </div>
+    </div>
 
-    <div class="space"></div>
+    <footer class="space">
+      <button id="contact-button">Contact</button>
+    </footer>
     
     <script>
-      const menuDrawerElement = document.getElementById('menu-drawer');
-      const menuElement = document.getElementById('menu');
-
-      const playerElement = document.querySelector('audio');
-
-      const messageDrawerElement = document.getElementById('message-drawer');
+      const contactMethodElement = document.getElementById('contact-method');
       const messageElement = document.getElementById('message');
 
-      //const albumTitleElement = document.getElementById('album-title');
-      const albumDrawerElement = document.getElementById('album-drawer');
-      const albumsElement = document.getElementById('albums');
+      const contactCloseButtonElement = document.getElementById('contact-close-button');
 
-      let canPlay = false;
-
-      playerElement.addEventListener('canplay', () => {
-        canPlay = true;
-      });
-
-      playerElement.addEventListener('ended', () => {
-        nextSong();
-      });
-
-      playerElement.addEventListener('error', (e) => {
-        messageElement.innerHTML = playerElement.error.message;
-
-        messageDrawerElement.classList.remove('off');
-      }, true);
-
-      playerElement.addEventListener('playing', () => {
-        navigator.mediaSession.playbackState = 'playing';
-      });
-
-      playerElement.addEventListener('pause', () => {
-        navigator.mediaSession.playbackState = 'paused';
-      });
-
-      function hideMenu() {
-        isMenuVisible = false;
-
-        menuDrawerElement.classList.add('off');
-      }
-
-      function showMenu() {
-        isMenuVisible = true;
-
-        menuDrawerElement.classList.remove('off');
-      }
-
-      function toggleMenu() {
-        if (isMenuVisible) {
-          hideMenu();
-        } else {
-          showMenu();
-        }
-      }
-
-      const albums = <%-albumData%>;
-
-      let songs = [];
-      let isMenuVisible = false;
-
-      let currentAlbum;
-
-      function createSongButton(songIndex, songName) {
-        const button = document.createElement('button');
-
-        button.innerHTML = songName;
-
-        button.addEventListener('click', () => {
-          loadSong(songIndex);
-        });
-
-        return button;
-      }
-
-      function renderAlbum(album) {
-        if (currentAlbum === album) {
-          return;
-        }
-
-        // albumTitleElement.innerHTML = album.albumName;
-
-        // album.button.classList.add('on');
-        // album.button.classList.remove('off');
-
-        for (const otherAlbum of albums) {
-          if (otherAlbum === album) {
-            continue;
-          }
-
-          otherAlbum.button.classList.remove('on');
-          otherAlbum.button.classList.add('off');
-        }
-
-        albumDrawerElement.classList.add('off');
-        messageDrawerElement.classList.add('off');
-
+      contactCloseButtonElement.addEventListener('mousedown', () => {
         setTimeout(() => {
-          songs.forEach(({ button }) => button.remove());
+          renderFlyer();
+        }, 125);
+      });
 
-          songs = album.songs.map((song, i) => ({ ...song, button: createSongButton(i, song.metadata.title) }));
+      const contactButtonElement = document.getElementById('contact-button');
 
-          albumsElement.append(...songs.map(song => song.button));
+      contactButtonElement.addEventListener("mousedown", () => {
+        setTimeout(() => {
+          renderContact();
+        }, 125);
+      });
 
-          albumDrawerElement.classList.remove('off');
+      const sendButtonElement = document.getElementById('send-button');
 
-          loadSong(0);
-        }, !currentAlbum ? 0 : 1000);
+      sendButtonElement.addEventListener('mousedown', () => {
+        setTimeout(() => {
+          const message = messageElement.value.trim();
 
-        currentAlbum = album;
-      }
+          if (!message) {
+            alert('Message cannot be empty.');
 
-      let currentSongIndex = 0;
-
-      function loadSong(songIndex) {
-        messageDrawerElement.classList.add('off');
-
-        currentSongIndex = songIndex;
-
-        for (let i = 0; i < songs.length; i++) {
-          const { button, metadata, url } = songs[i];
-
-          if (i !== songIndex) {
-            button.classList.remove('on');
-
-            continue;
+            return;
           }
 
-          button.classList.add('on');
+          if (message.length > 2000) {
+            alert('Message must be 2000 characters or less.');
 
-          playerElement.pause();
-
-          playerElement.src = url;
-
-          playerElement.load();
-
-          navigator.mediaSession.metadata = new MediaMetadata(metadata);
-
-          document.title = `${currentAlbum.albumName} - ${metadata.title}`;
-
-          if (canPlay) {
-            playerElement.play();
+            return;
           }
-        }
-      }
 
-      function nextSong() {
-        if (currentSongIndex === songs.length - 1) {
-          navigator.mediaSession.playbackState = 'none';
+          const contactMethod = contactMethodElement.value.trim();
 
-          return
-        }
-        
-        loadSong(currentSongIndex + 1);
-      }
+          if (contactMethod.length > 500) {
+            alert('Email or phone number must be 500 characters or less.');
 
-      function previousSong() {
-        if (playerElement.currentTime > 5) {
-          playerElement.currentTime = 0;
+            return;
+          }
 
-          return;
-        } 
-        
-        loadSong((currentSongIndex === 0) ? songs.length - 1 : currentSongIndex - 1);
-      }
+          if (!contactMethod && !confirm("You didn't enter an email or phone number. Do you want to send anyway?")) {
+            return;
+          }
 
-      navigator.mediaSession.setActionHandler('play', () => {
-        playerElement.play();
-      });
+          function sendMessage() {
+            sendButtonElement.disabled = true;
 
-      navigator.mediaSession.setActionHandler('pause', () => {
-        playerElement.pause();
-      });
+            const sendButtonText = sendButtonElement.innerHTML;
 
-      navigator.mediaSession.setActionHandler('previoustrack', () => {
-        previousSong();
-      });
+            function restoreSendButton() {
+              sendButtonElement.disabled = false;
+              sendButtonElement.innerHTML = sendButtonText; 
+            }
 
-      navigator.mediaSession.setActionHandler('nexttrack', () => {
-        if (currentSongIndex === songs.length - 1) {
-          loadSong(0);
+            sendButtonElement.innerHTML = "Sending...";
 
-          return
-        }
-      });
+            setTimeout(async () => {
+              try {
+                const response = await fetch('/message', { 
+                  method: 'POST',
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ contactMethod, message }) 
+                });
 
-      // mainButtonElement.addEventListener('click', () => {
-      //   if (currentAlbum === albums[0]) {
-      //     toggleMenu();
+                if (!response.ok) {
+                  alert("ERROR - Your message could not be sent.");
 
-      //     return;
-      //   }
+                  restoreSendButton();
 
-      //   hideMenu();
+                  return;
+                }
+              } catch {
+                if (!confirm('Your message could not be sent. Do you want to retry?')) {
+                  restoreSendButton();
 
-      //   history.replaceState({}, albums[0].name, '/');
+                  return;
+                }
 
-      //   renderAlbum(albums[0]);
-      // });
-
-      // albums[0].button = mainButtonElement;
-
-      // albums.forEach((album, i) => {
-      //   if (i === 0) {
-      //     return;
-      //   }
-
-      //   const button = document.createElement('button');
-
-      //   button.innerHTML = album.albumName;
-
-      //   button.addEventListener('click', () => {
-      //     history.replaceState({}, album.name, album.albumSlug);
-
-      //     renderAlbum(album);
-      //   });
-
-      //   menuElement.append(button);
-
-      //   album.button = button;
-      // });
-
-      window.addEventListener('load', () => {
-        const album = albums.find(album => album.albumSlug === location.pathname);
-
-        if (!album) {
-          renderAlbum(albums[0]);
-
-          return;
-        }
-
-        renderAlbum(album);
-
-        showMenu();
-
-        loadSong(0);
-      });
-
-      const TOTAL_POSTER_COUNT = 60;
-      const POSTER_SIZE = 66;
-
-      function createPosterImage(posterIndex) {
-        const img = document.createElement('img');
-
-        img.src = `/public/posters/${posterIndex}.png`;
-        
-        img.height = POSTER_SIZE;
-        img.width = POSTER_SIZE;
-
-        return img;
-      }
-
-      const posterElement = document.getElementById('posters');
-
-      let debounceTimeout;
-
-      const resizeObserver = new ResizeObserver(() => {
-        clearTimeout(debounceTimeout);
-
-        debounceTimeout = setTimeout(() => {
-          requestAnimationFrame(() => {
-            const { width, height } = document.body.getBoundingClientRect();
-
-            posterElement.innerHTML = '';
-
-            for (let i = 0; i < Math.ceil(height / POSTER_SIZE) + 1; i++) {
-              const row = document.createElement('div');
-
-              for (let ii = 0; ii < Math.ceil(width / POSTER_SIZE) + 1; ii++) {
-                const posterIndex = Math.floor(Math.random() * TOTAL_POSTER_COUNT);
-
-                row.append(createPosterImage(posterIndex));
+                sendMessage();
               }
 
-              posterElement.append(row);
-            }
-          });
-        }, 200);
+              renderFlyer();
+
+              restoreSendButton();
+              
+              contactMethodElement.value = '';
+              messageElement.value = '';
+
+              setTimeout(() =>{
+                alert('Your message has been sent.');
+              }, 125);
+            });
+          }
+
+          sendMessage();
+
+        }, 125);
       });
 
-      resizeObserver.observe(document.body);
+      const flyerElement = document.getElementById('flyer');
+      const contactElement = document.getElementById('contact');
+      const [footerElement] = document.getElementsByTagName('footer');
+      const contactMethodInputElement = document.getElementById('contact-method');
+
+      function renderContact() {
+        flyerElement.classList.add('hidden');
+        contactElement.classList.remove('hidden');
+        footerElement.classList.add('hidden');
+        contactMethodInputElement.focus();
+      }
+
+      function renderFlyer() {
+        flyerElement.classList.remove('hidden');
+        contactElement.classList.add('hidden');
+        footerElement.classList.remove('hidden');
+      }
     </script>
   </body>
 </html>
