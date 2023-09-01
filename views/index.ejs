@@ -9,22 +9,9 @@
         font: 18px "Courier New", Courier, monospace;
       }
 
-      html {
-        height: 100%;
-      }
-
       body {
         background-color: black;
         color: var(--digital-green);
-
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-around;
-
-        height: 100%;
-
-        margin: 0;
       }
 
       .buttons {
@@ -33,7 +20,6 @@
       }
 
       .video-container {
-        max-height: 50%;
         padding: 4rem 2rem;
       }
 
@@ -49,7 +35,7 @@
 
         text-align: center;
 
-        padding-bottom: 2rem;
+        padding-top: 2rem;
 
         width: 100%;
       }
@@ -98,10 +84,6 @@
         padding: 1rem;
       }
 
-      #flyer {
-        height: 75%;
-      }
-
       #flyer > div {
         padding: 1rem;
 
@@ -138,22 +120,22 @@
   <body>
     <div id="flyer">
       <div>
-        <div class="flyer digital">
-          Ritual Madness<br />
-          Saturday, August 19, 2023<br />
+        <div class="digital container">
+          Friday, September 29, 2023<br />
           <br />
           State Street Pub<br />
           Indianapolis<br />
           <br />
-          Featuring Matt Hagan<br />
-          w/<br />
-          Data Unknown<br />
-          Fen Fen<span class="blink">_</span><br />
+          Christina Elena's Big 33 BDay Gig<br />
+          <br />
+          Ritual Madness<br />
+          Sonora<br />
+          Radar Gold<br />
+          Braindamage_
         </div>
-
-        <div class="video-container digital">
-          <video controls src="/video.mp4" type="video/mp4"></video>
-        </div>
+      </div>
+      <div class="video-container digital">
+        <video controls src="/video.mp4" type="video/mp4"></video>
       </div>
     </div>
     <div id="contact" class="hidden">
